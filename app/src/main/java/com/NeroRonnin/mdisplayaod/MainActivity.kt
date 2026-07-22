@@ -11,11 +11,14 @@ import androidx.activity.enableEdgeToEdge
 import com.NeroRonnin.mdisplayaod.service.MusicNotificationListener
 import com.NeroRonnin.mdisplayaod.ui.screens.LockScreen
 import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
+import com.NeroRonnin.mdisplayaod.service.MediaSessionHelper
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        MediaSessionHelper.syncCurrentSession(this)
 
         enableEdgeToEdge()
 
@@ -26,5 +29,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        MediaSessionHelper.syncCurrentSession(this)
+    }
 
 }

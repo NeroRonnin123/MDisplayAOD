@@ -21,13 +21,16 @@ class MusicNotificationListener : NotificationListenerService() {
 
     private val mediaControllerCallback = object : MediaController.Callback() {
 
-        override fun onMetadataChanged(metadata: android.media.MediaMetadata?) {
+        override fun onMetadataChanged(metadata: MediaMetadata?) {
             super.onMetadataChanged(metadata)
 
             Log.d(TAG, "Metadata cambió")
 
-            activeController?.let {
-                actualizarCancion(it)
+            activeController?.let { controller ->
+                actualizarCancion(
+                    controller = controller,
+                    metadata = metadata
+                )
             }
         }
 
@@ -36,12 +39,14 @@ class MusicNotificationListener : NotificationListenerService() {
 
             Log.d(TAG, "Estado de reproducción cambió")
 
-            activeController?.let {
-                actualizarCancion(it)
+            activeController?.let { controller ->
+                actualizarCancion(
+                    controller = controller,
+                    metadata = controller.metadata
+                )
             }
         }
     }
-
     private val sessionsChangedListener =
         MediaSessionManager.OnActiveSessionsChangedListener { controllers ->
 
@@ -101,9 +106,8 @@ class MusicNotificationListener : NotificationListenerService() {
         activeController = null
 
     }
-    private fun actualizarCancion(controller: MediaController) {
-
-        val metadata = controller.metadata
+    private fun actualizarCancion(controller: MediaController,
+                                  metadata: MediaMetadata? = controller.metadata) {
 
         val title = metadata?.getString(
             MediaMetadata.METADATA_KEY_TITLE
