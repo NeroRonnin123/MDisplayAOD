@@ -136,6 +136,25 @@ class MusicNotificationListener : NotificationListenerService() {
             }"
         )
 
+        MusicRepository.setPlayPauseAction {
+
+            val state = controller.playbackState?.state
+
+            if (state == PlaybackState.STATE_PLAYING) {
+                controller.transportControls.pause()
+            } else {
+                controller.transportControls.play()
+            }
+        }
+
+        MusicRepository.setPreviousAction {
+            controller.transportControls.skipToPrevious()
+        }
+
+        MusicRepository.setNextAction {
+            controller.transportControls.skipToNext()
+        }
+
         MusicRepository.updateSong(
             Song(
                 title = title ?: "Sin reproducción",

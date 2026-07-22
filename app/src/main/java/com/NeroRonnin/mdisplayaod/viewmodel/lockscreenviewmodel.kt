@@ -11,4 +11,16 @@ class LockScreenViewModel : ViewModel() {
 
     val song: StateFlow<Song> = MusicRepository.song
 
+    fun playPause() {
+        MusicRepository.playPause()
+    }
+
+    fun previous() {
+        MusicRepository.previous()
+    }
+
+    fun next() {
+        MusicRepository.next()
+    }
+
 }

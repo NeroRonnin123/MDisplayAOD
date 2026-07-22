@@ -64,7 +64,18 @@ fun LockScreen() {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            PlayerControls()
+            PlayerControls(
+                isPlaying = song.isPlaying,
+                onPrevious = {
+                    lockScreenViewModel.previous()
+                },
+                onPlayPause = {
+                    lockScreenViewModel.playPause()
+                },
+                onNext = {
+                    lockScreenViewModel.next()
+                }
+            )
         }
     }
 }
