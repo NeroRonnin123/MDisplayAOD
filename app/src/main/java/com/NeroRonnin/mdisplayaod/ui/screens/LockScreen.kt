@@ -1,6 +1,6 @@
 
 
-package com.neroronnin.mdisplayaod.ui.screens
+package com.NeroRonnin.mdisplayaod.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +36,7 @@ fun LockScreen() {
     ) {
 
         // CAPA 1 - Portada
-        AlbumArt()
+        AlbumArt(song)
 
         // CAPA 2 - Blur
         Box(
