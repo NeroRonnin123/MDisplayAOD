@@ -10,11 +10,23 @@ import android.util.Log
 import com.NeroRonnin.mdisplayaod.data.MusicRepository
 import com.NeroRonnin.mdisplayaod.model.Song
 
+
 object MediaSessionHelper {
 
     private const val TAG = "MDisplayAOD_SESSION"
 
     private var activeController: MediaController? = null
+    private var mediaSessionManager: MediaSessionManager? = null
+    private var componentName: ComponentName? = null
+    private var sessionsListenerRegistered = false
+
+    private val sessionsChangedListener =
+        MediaSessionManager.OnActiveSessionsChangedListener {
+
+            Log.d(TAG, "Cambió la lista de sesiones")
+
+            seleccionarSesion(it ?: emptyList())
+        }
 
     private val controllerCallback = object : MediaController.Callback() {
 
@@ -47,57 +59,38 @@ object MediaSessionHelper {
 
     fun syncCurrentSession(context: Context) {
 
-        val mediaSessionManager =
+        val manager =
             context.getSystemService(Context.MEDIA_SESSION_SERVICE)
                     as MediaSessionManager
 
-        val componentName = ComponentName(
+        val component = ComponentName(
             context,
             MusicNotificationListener::class.java
         )
 
+        mediaSessionManager = manager
+        componentName = component
+
         try {
 
+            if (!sessionsListenerRegistered) {
+
+                manager.addOnActiveSessionsChangedListener(
+                    sessionsChangedListener,
+                    component
+                )
+
+                sessionsListenerRegistered = true
+
+                Log.d(TAG, "Listener de sesiones registrado")
+            }
+
             val controllers =
-                mediaSessionManager.getActiveSessions(componentName)
+                manager.getActiveSessions(component)
 
             Log.d(TAG, "Sincronizando sesiones: ${controllers.size}")
 
-            val controller =
-                controllers.firstOrNull {
-                    it.playbackState?.state == PlaybackState.STATE_PLAYING
-                } ?: controllers.firstOrNull()
-
-            if (controller == null) {
-
-                activeController?.unregisterCallback(
-                    controllerCallback
-                )
-
-                activeController = null
-
-                MusicRepository.updateSong(Song())
-
-                return
-            }
-
-            // Si cambió la sesión, quitamos el callback anterior
-            if (activeController?.sessionToken != controller.sessionToken) {
-
-                activeController?.unregisterCallback(
-                    controllerCallback
-                )
-
-                activeController = controller
-
-                activeController?.registerCallback(
-                    controllerCallback
-                )
-
-                Log.d(TAG, "Callback registrado")
-            }
-
-            actualizarCancion(controller)
+            seleccionarSesion(controllers)
 
         } catch (e: SecurityException) {
 
@@ -108,6 +101,54 @@ object MediaSessionHelper {
             )
         }
     }
+
+    private fun seleccionarSesion(
+        controllers: List<MediaController>
+    ) {
+
+        val controller =
+            controllers.firstOrNull {
+                it.playbackState?.state ==
+                        PlaybackState.STATE_PLAYING
+            } ?: controllers.firstOrNull()
+
+        if (controller == null) {
+
+            activeController?.unregisterCallback(
+                controllerCallback
+            )
+
+            activeController = null
+
+            MusicRepository.updateSong(Song())
+
+            return
+        }
+
+        if (
+            activeController?.sessionToken !=
+            controller.sessionToken
+        ) {
+
+            activeController?.unregisterCallback(
+                controllerCallback
+            )
+
+            activeController = controller
+
+            controller.registerCallback(
+                controllerCallback
+            )
+
+            Log.d(
+                TAG,
+                "Sesión activa: ${controller.packageName}"
+            )
+        }
+
+        actualizarCancion(controller)
+    }
+
 
     private fun actualizarCancion(
         controller: MediaController,
