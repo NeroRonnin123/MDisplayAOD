@@ -10,9 +10,9 @@ class LockScreenViewModel : ViewModel() {
 
     private val _song = MutableStateFlow(
         Song(
-            title = "Carry On My Wayward Son",
-            artist = "Kansas",
-            isPlaying = false
+            title = "HOPE",
+            artist = "NF",
+            isPlaying = true
         )
     )
 

@@ -10,6 +10,9 @@ import com.NeroRonnin.mdisplayaod.model.Song
 @Composable
 fun SongInfo(song: Song) {
 
+
+
+
     Text(
         text = song.title,
         color = Color.White,
