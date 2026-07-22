@@ -27,16 +27,25 @@ import com.NeroRonnin.mdisplayaod.viewmodel.LockScreenViewModel
 
 @Composable
 fun LockScreen() {
-    val lockScreenViewModel: LockScreenViewModel = viewModel()
 
+    val lockScreenViewModel: LockScreenViewModel = viewModel()
     val song by lockScreenViewModel.song.collectAsState()
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
+        modifier = Modifier.fillMaxSize()
     ) {
 
+        // CAPA 1 - Portada
+        AlbumArt()
+
+        // CAPA 2 - Blur
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.55f))
+        )
+
+        // CAPA 3 - Content
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -51,17 +60,11 @@ fun LockScreen() {
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            AlbumArt()
-
-            Spacer(modifier = Modifier.height(24.dp))
-
             SongInfo(song)
 
             Spacer(modifier = Modifier.height(32.dp))
 
             PlayerControls()
         }
-
     }
-
 }
