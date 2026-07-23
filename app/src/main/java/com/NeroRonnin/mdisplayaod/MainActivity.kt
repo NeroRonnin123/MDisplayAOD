@@ -1,26 +1,22 @@
 package com.NeroRonnin.mdisplayaod
 
-import android.content.ComponentName
-import android.media.MediaMetadata
-import android.media.session.MediaSessionManager
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.NeroRonnin.mdisplayaod.service.MusicNotificationListener
-import com.NeroRonnin.mdisplayaod.ui.screens.LockScreen
-import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
-import com.NeroRonnin.mdisplayaod.service.MediaSessionHelper
-import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.NeroRonnin.mdisplayaod.service.LockScreenService
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.result.contract.ActivityResultContracts
-
-
+import com.NeroRonnin.mdisplayaod.service.MediaSessionHelper
+import com.NeroRonnin.mdisplayaod.ui.screens.LockScreen
+import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
 
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +36,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
                Log.d("MDisplayAOD_ACTIVITY", "MainActivity onCreate")
+
+        if (!Settings.canDrawOverlays(this)) {
+
+            val overlayIntent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
+
+            startActivity(overlayIntent)
+        }
+
         checkNotificationPermission()
 
         setShowWhenLocked(true)

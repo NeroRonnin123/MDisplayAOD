@@ -64,7 +64,7 @@ fun LockScreen() {
                                 "Swipe arriba detectado"
                             )
 
-                            activity?.moveTaskToBack(true)
+                            activity?.finish()
                         }
 
                         totalDrag = 0f
