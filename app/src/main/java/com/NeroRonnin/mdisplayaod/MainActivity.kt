@@ -17,6 +17,7 @@ import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.app.NotificationManagerCompat
 
 class MainActivity : ComponentActivity() {
 
@@ -27,12 +28,20 @@ class MainActivity : ComponentActivity() {
 
     private var isLockScreenEnabled by mutableStateOf(true)
 
+    private var overlayGranted by mutableStateOf(false)
+
+    private var notificationAccessGranted by mutableStateOf(false)
+
+    private var postNotificationsGranted by mutableStateOf(false)
+
     private val notificationPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
 
-            if (granted) {
+            refreshPermissionStates()
+
+            if (granted && isLockScreenEnabled) {
                 startLockScreenService()
             }
         }
@@ -45,6 +54,8 @@ class MainActivity : ComponentActivity() {
                 PREFS_NAME,
                 MODE_PRIVATE
             )
+
+        refreshPermissionStates()
 
         isLockScreenEnabled =
             preferences.getBoolean(
@@ -64,9 +75,28 @@ class MainActivity : ComponentActivity() {
                 SettingsScreen(
                     isEnabled = isLockScreenEnabled,
 
-                    onEnabledChange = { enabled ->
+                    overlayGranted = overlayGranted,
 
+                    notificationAccessGranted =
+                        notificationAccessGranted,
+
+                    postNotificationsGranted =
+                        postNotificationsGranted,
+
+                    onEnabledChange = { enabled ->
                         updateLockScreenEnabled(enabled)
+                    },
+
+                    onOverlayClick = {
+                        openOverlaySettings()
+                    },
+
+                    onNotificationAccessClick = {
+                        openNotificationAccessSettings()
+                    },
+
+                    onPostNotificationsClick = {
+                        requestNotificationPermission()
                     },
 
                     onPreviewClick = {
@@ -75,6 +105,67 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+
+    private fun openOverlaySettings() {
+
+        val intent = Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:$packageName")
+        )
+
+        startActivity(intent)
+    }
+
+    private fun openNotificationAccessSettings() {
+
+        val intent =
+            Intent(
+                Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+            )
+
+        startActivity(intent)
+    }
+
+    private fun requestNotificationPermission() {
+
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            checkSelfPermission(
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            notificationPermissionLauncher.launch(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        refreshPermissionStates()
+    }
+
+    private fun refreshPermissionStates() {
+
+        overlayGranted =
+            Settings.canDrawOverlays(this)
+
+        val enabledListeners =
+            NotificationManagerCompat
+                .getEnabledListenerPackages(this)
+
+        notificationAccessGranted =
+            enabledListeners.contains(packageName)
+
+        postNotificationsGranted =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                    checkSelfPermission(
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun updateLockScreenEnabled(enabled: Boolean) {
