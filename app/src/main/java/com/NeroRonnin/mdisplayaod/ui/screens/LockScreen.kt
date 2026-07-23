@@ -28,6 +28,14 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
+import com.NeroRonnin.mdisplayaod.util.ArtworkColorExtractor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LockScreen() {
@@ -38,6 +46,31 @@ fun LockScreen() {
 
     val lockScreenViewModel: LockScreenViewModel = viewModel()
     val song by lockScreenViewModel.song.collectAsState()
+
+
+    var automaticClockColor by remember {
+        mutableStateOf(Color.White)
+    }
+
+    LaunchedEffect(song.albumArt) {
+
+        val bitmap = song.albumArt
+
+        automaticClockColor =
+            if (bitmap != null) {
+
+                withContext(Dispatchers.Default) {
+
+                    Color(
+                        ArtworkColorExtractor.extractColor(bitmap)
+                    )
+                }
+
+            } else {
+
+                Color.White
+            }
+    }
 
     Box(
         modifier = Modifier
@@ -80,6 +113,8 @@ fun LockScreen() {
         // CAPA 1 - Portada
         AlbumArt(song)
 
+
+
         // CAPA 2 - Blur
         Box(
             modifier = Modifier
@@ -94,7 +129,9 @@ fun LockScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Clock()
+            Clock(
+                automaticColor = automaticClockColor
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -103,6 +140,8 @@ fun LockScreen() {
             Spacer(modifier = Modifier.height(48.dp))
 
             SongInfo(song)
+
+
 
             Spacer(modifier = Modifier.height(32.dp))
 

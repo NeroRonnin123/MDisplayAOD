@@ -469,9 +469,7 @@ fun ClockSettingsScreen(
                 color = Color(0xFF8268FF),
                 selected = selectedColor == "automatic",
                 onClick = {
-
                     selectedColor = "automatic"
-
                     ClockPreferences.setClockColor(
                         context,
                         "automatic"
