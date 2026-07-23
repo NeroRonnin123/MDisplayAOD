@@ -17,7 +17,9 @@ import com.NeroRonnin.mdisplayaod.service.LockScreenService
 import com.NeroRonnin.mdisplayaod.service.MediaSessionHelper
 import com.NeroRonnin.mdisplayaod.ui.screens.LockScreen
 import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
-
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : ComponentActivity() {
 
@@ -34,6 +36,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val insetsController =
+            WindowCompat.getInsetsController(window, window.decorView)
+
+        insetsController.hide(
+            WindowInsetsCompat.Type.systemBars()
+        )
+
+        insetsController.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
 
                Log.d("MDisplayAOD_ACTIVITY", "MainActivity onCreate")
 
