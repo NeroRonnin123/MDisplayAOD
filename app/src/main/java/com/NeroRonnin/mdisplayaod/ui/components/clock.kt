@@ -11,6 +11,7 @@ import kotlinx.coroutines.delay
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
+
 @Composable
 fun Clock(
     automaticColor: Color = Color.White
@@ -23,6 +24,17 @@ fun Clock(
 
     val clockSize =
         ClockPreferences.getClockSize(context)
+
+    val clockWeight =
+        ClockPreferences.getClockWeight(context)
+
+
+    val fontWeight =
+        when (clockWeight) {
+            "normal" -> FontWeight.Normal
+            "bold" -> FontWeight.Bold
+            else -> FontWeight.Light
+        }
 
     val selectedColor =
         ClockPreferences.getClockColor(context)
@@ -73,6 +85,6 @@ fun Clock(
         ),
         color = clockColor,
         fontSize = fontSize,
-        fontWeight = FontWeight.Light
+        fontWeight = fontWeight
     )
 }

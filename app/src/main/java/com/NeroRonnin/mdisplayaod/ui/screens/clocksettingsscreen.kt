@@ -67,6 +67,12 @@ fun ClockSettingsScreen(
         )
     }
 
+    var clockWeight by remember {
+        mutableStateOf(
+            ClockPreferences.getClockWeight(context)
+        )
+    }
+
     var showDate by remember {
         mutableStateOf(
             ClockPreferences.getShowDate(context)
@@ -101,14 +107,6 @@ fun ClockSettingsScreen(
             ).format(currentTime)
         }
 
-    // Tamaño de reloj
-    val clockFontSize =
-        when (clockSize) {
-            "small" -> 48.sp
-            "large" -> 80.sp
-            else -> 64.sp
-        }
-
     // Color de reloj
     val clockColor =
         when (selectedColor) {
@@ -122,6 +120,21 @@ fun ClockSettingsScreen(
             // Temporal:
             // después vendrá de la portada.
             else -> Color(0xFF8268FF)
+        }
+
+    val clockFontSize =
+        when (clockSize) {
+            "small" -> 48.sp
+            "large" -> 80.sp
+            else -> 64.sp
+        }
+
+
+    val clockFontWeight =
+        when (clockWeight) {
+            "normal" -> FontWeight.Normal
+            "bold" -> FontWeight.Bold
+            else -> FontWeight.Light
         }
 
     Column(
@@ -220,7 +233,7 @@ fun ClockSettingsScreen(
                         text = formattedTime,
                         color = clockColor,
                         fontSize = clockFontSize,
-                        fontWeight = FontWeight.Light
+                        fontWeight = clockFontWeight
                     )
 
                     if (showDate) {
@@ -376,6 +389,72 @@ fun ClockSettingsScreen(
                     ClockPreferences.setClockSize(
                         context,
                         "large"
+                    )
+                }
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
+        // =========================
+        // Bold
+        // =========================
+
+        Text(
+            text = "GROSOR",
+            color = purple,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium
+        )
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+
+            ClockSizeOption(
+                modifier = Modifier.weight(1f),
+                text = "Ligero",
+                selected = clockWeight == "light",
+                onClick = {
+                    clockWeight = "light"
+
+                    ClockPreferences.setClockWeight(
+                        context,
+                        "light"
+                    )
+                }
+            )
+
+            ClockSizeOption(
+                modifier = Modifier.weight(1f),
+                text = "Normal",
+                selected = clockWeight == "normal",
+                onClick = {
+                    clockWeight = "normal"
+
+                    ClockPreferences.setClockWeight(
+                        context,
+                        "normal"
+                    )
+                }
+            )
+
+            ClockSizeOption(
+                modifier = Modifier.weight(1f),
+                text = "Negrita",
+                selected = clockWeight == "bold",
+                onClick = {
+                    clockWeight = "bold"
+
+                    ClockPreferences.setClockWeight(
+                        context,
+                        "bold"
                     )
                 }
             )

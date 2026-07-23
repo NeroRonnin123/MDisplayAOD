@@ -5,11 +5,28 @@ import android.content.Context
 object ClockPreferences {
 
     private const val PREFS_NAME = "clock_preferences"
-
     private const val KEY_USE_24_HOUR = "use_24_hour"
     private const val KEY_CLOCK_SIZE = "clock_size"
     private const val KEY_SHOW_DATE = "show_date"
     private const val KEY_CLOCK_COLOR = "clock_color"
+    private const val KEY_CLOCK_WEIGHT = "clock_weight"
+
+
+    fun getClockWeight(context: Context): String {
+        return prefs(context)
+            .getString(KEY_CLOCK_WEIGHT, "light")
+            ?: "light"
+    }
+
+    fun setClockWeight(
+        context: Context,
+        value: String
+    ) {
+        prefs(context)
+            .edit()
+            .putString(KEY_CLOCK_WEIGHT, value)
+            .apply()
+    }
 
     fun getUse24Hour(context: Context): Boolean {
         return prefs(context)
