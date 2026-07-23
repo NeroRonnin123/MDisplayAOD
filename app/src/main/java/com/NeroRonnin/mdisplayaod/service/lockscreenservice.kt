@@ -16,7 +16,7 @@ import com.NeroRonnin.mdisplayaod.R
 
 class LockScreenService : Service() {
 
-
+    private var aodShownForCurrentLock = false
     private val screenReceiver = object : BroadcastReceiver() {
 
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -27,8 +27,20 @@ class LockScreenService : Service() {
 
                     Log.d(
                         "MDisplayAOD_LOCK",
-                        "Pantalla APAGADA"
+                        "Pantalla APAGADA | mostrado=$aodShownForCurrentLock"
                     )
+
+                    // Ya mostramos MDisplayAOD durante este ciclo de bloqueo.
+                    // No volver a lanzarlo hasta que el usuario desbloquee.
+                    if (aodShownForCurrentLock) {
+
+                        Log.d(
+                            "MDisplayAOD_LOCK",
+                            "AOD ya mostrado en este bloqueo → ignorando SCREEN_OFF"
+                        )
+
+                        return
+                    }
 
                     val keyguardManager =
                         getSystemService(KEYGUARD_SERVICE) as KeyguardManager
@@ -45,7 +57,7 @@ class LockScreenService : Service() {
 
                         flags =
                             Intent.FLAG_ACTIVITY_NEW_TASK or
-                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    Intent.FLAG_ACTIVITY_SINGLE_TOP
 
                         putExtra("FROM_SCREEN_OFF", true)
                     }
@@ -59,9 +71,12 @@ class LockScreenService : Service() {
 
                         startActivity(aodIntent)
 
+                        // Marcamos que YA fue mostrado durante este bloqueo.
+                        aodShownForCurrentLock = true
+
                         Log.d(
                             "MDisplayAOD_LOCK",
-                            "startActivity TERMINÓ"
+                            "startActivity TERMINÓ | AOD marcado como mostrado"
                         )
 
                     } catch (e: Exception) {
@@ -84,7 +99,8 @@ class LockScreenService : Service() {
                         "MDisplayAOD_LOCK",
                         "Usuario DESBLOQUEÓ"
                     )
-
+                    aodShownForCurrentLock = false
+                    aodShownForCurrentLock = false
 
                 }
             }
