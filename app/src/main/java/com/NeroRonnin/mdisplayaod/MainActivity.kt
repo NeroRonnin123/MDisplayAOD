@@ -6,18 +6,19 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import com.NeroRonnin.mdisplayaod.service.LockScreenService
-import com.NeroRonnin.mdisplayaod.ui.screens.SettingsScreen
-import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import com.NeroRonnin.mdisplayaod.service.LockScreenService
+import com.NeroRonnin.mdisplayaod.ui.screens.SettingsScreen
+import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -26,6 +27,8 @@ class MainActivity : ComponentActivity() {
         private const val KEY_ENABLED = "lock_screen_enabled"
     }
 
+
+
     private var isLockScreenEnabled by mutableStateOf(true)
 
     private var overlayGranted by mutableStateOf(false)
@@ -33,6 +36,8 @@ class MainActivity : ComponentActivity() {
     private var notificationAccessGranted by mutableStateOf(false)
 
     private var postNotificationsGranted by mutableStateOf(false)
+
+    private var batteryOptimizationDisabled by mutableStateOf(false)
 
     private val notificationPermissionLauncher =
         registerForActivityResult(
@@ -76,12 +81,9 @@ class MainActivity : ComponentActivity() {
                     isEnabled = isLockScreenEnabled,
 
                     overlayGranted = overlayGranted,
-
-                    notificationAccessGranted =
-                        notificationAccessGranted,
-
-                    postNotificationsGranted =
-                        postNotificationsGranted,
+                    notificationAccessGranted = notificationAccessGranted,
+                    postNotificationsGranted = postNotificationsGranted,
+                    batteryOptimizationDisabled = batteryOptimizationDisabled,
 
                     onEnabledChange = { enabled ->
                         updateLockScreenEnabled(enabled)
@@ -97,6 +99,10 @@ class MainActivity : ComponentActivity() {
 
                     onPostNotificationsClick = {
                         requestNotificationPermission()
+                    },
+
+                    onBatteryOptimizationClick = {
+                        openBatteryOptimizationSettings()
                     },
 
                     onPreviewClick = {
@@ -166,6 +172,22 @@ class MainActivity : ComponentActivity() {
                     checkSelfPermission(
                         Manifest.permission.POST_NOTIFICATIONS
                     ) == PackageManager.PERMISSION_GRANTED
+
+        val powerManager =
+            getSystemService(POWER_SERVICE) as PowerManager
+
+        batteryOptimizationDisabled =
+            powerManager.isIgnoringBatteryOptimizations(packageName)
+    }
+
+
+    private fun openBatteryOptimizationSettings() {
+
+        val intent = Intent(
+            Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+        )
+
+        startActivity(intent)
     }
 
     private fun updateLockScreenEnabled(enabled: Boolean) {

@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+
+
 @Composable
 fun SettingsScreen(
     isEnabled: Boolean,
@@ -28,7 +30,10 @@ fun SettingsScreen(
     onOverlayClick: () -> Unit,
     onNotificationAccessClick: () -> Unit,
     onPostNotificationsClick: () -> Unit,
+    batteryOptimizationDisabled: Boolean,
+    onBatteryOptimizationClick: () -> Unit,
     onPreviewClick: () -> Unit
+
 ) {
 
     Column(
@@ -86,6 +91,19 @@ fun SettingsScreen(
             title = "Notificaciones de la aplicación",
             granted = postNotificationsGranted,
             onClick = onPostNotificationsClick
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+
+        HorizontalDivider()
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text("Funcionamiento en segundo plano")
+
+        PermissionRow(
+            title = "Optimización de batería de Android",
+            granted = batteryOptimizationDisabled,
+            onClick = onBatteryOptimizationClick
         )
 
         Spacer(modifier = Modifier.weight(1f))
