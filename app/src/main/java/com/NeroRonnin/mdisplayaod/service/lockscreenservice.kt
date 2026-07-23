@@ -24,53 +24,54 @@ class LockScreenService : Service() {
             when (intent?.action) {
 
                 Intent.ACTION_SCREEN_OFF -> {
+
                     Log.d(
                         "MDisplayAOD_LOCK",
                         "Pantalla APAGADA"
                     )
 
-                    android.os.Handler(
-                        android.os.Looper.getMainLooper()
-                    ).postDelayed({
+                    val keyguardManager =
+                        getSystemService(KEYGUARD_SERVICE) as KeyguardManager
 
-                        val keyguardManager =
-                            getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+                    Log.d(
+                        "MDisplayAOD_LOCK",
+                        "Keyguard locked: ${keyguardManager.isKeyguardLocked}"
+                    )
+
+                    val aodIntent = Intent(
+                        this@LockScreenService,
+                        com.NeroRonnin.mdisplayaod.MainActivity::class.java
+                    ).apply {
+
+                        flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                        putExtra("FROM_SCREEN_OFF", true)
+                    }
+
+                    try {
 
                         Log.d(
                             "MDisplayAOD_LOCK",
-                            "Intentando mostrar AOD después de SCREEN_OFF"
+                            "startActivity INICIO"
                         )
 
-                        if (keyguardManager.isKeyguardLocked) {
+                        startActivity(aodIntent)
 
-                            val intent = Intent(
-                                this@LockScreenService,
-                                com.NeroRonnin.mdisplayaod.MainActivity::class.java
-                            ).apply {
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                            }
+                        Log.d(
+                            "MDisplayAOD_LOCK",
+                            "startActivity TERMINÓ"
+                        )
 
-                            try {
+                    } catch (e: Exception) {
 
-                                startActivity(intent)
-
-                                Log.d(
-                                    "MDisplayAOD_LOCK",
-                                    "Intent AOD enviado"
-                                )
-
-                            } catch (e: Exception) {
-
-                                Log.e(
-                                    "MDisplayAOD_LOCK",
-                                    "Error mostrando AOD",
-                                    e
-                                )
-                            }
-                        }
-
-                    }, 500)
+                        Log.e(
+                            "MDisplayAOD_LOCK",
+                            "Error mostrando AOD",
+                            e
+                        )
+                    }
                 }
 
                 Intent.ACTION_SCREEN_ON -> {
@@ -168,6 +169,7 @@ class LockScreenService : Service() {
             .build()
     }
 
+
     override fun onDestroy() {
 
         unregisterReceiver(screenReceiver)
@@ -179,7 +181,6 @@ class LockScreenService : Service() {
 
         super.onDestroy()
     }
-
 
 
 }

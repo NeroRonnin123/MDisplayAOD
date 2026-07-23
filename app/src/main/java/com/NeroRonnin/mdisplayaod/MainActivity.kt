@@ -95,7 +95,26 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
-        Log.d("MDisplayAOD_ACTIVITY", "MainActivity onNewIntent")
+        Log.d(
+            "MDisplayAOD_ACTIVITY",
+            "MainActivity onNewIntent - FROM_SCREEN_OFF=${
+                intent.getBooleanExtra("FROM_SCREEN_OFF", false)
+            }"
+        )
     }
 
+    override fun onPause() {
+        super.onPause()
+        Log.d("MDisplayAOD_ACTIVITY", "MainActivity onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("MDisplayAOD_ACTIVITY", "MainActivity onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("MDisplayAOD_ACTIVITY", "MainActivity onDestroy")
+    }
 }
