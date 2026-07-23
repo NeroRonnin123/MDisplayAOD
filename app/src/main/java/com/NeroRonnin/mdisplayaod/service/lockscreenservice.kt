@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.NeroRonnin.mdisplayaod.R
+import com.NeroRonnin.mdisplayaod.LockScreenActivity
 
 class LockScreenService : Service() {
 
@@ -52,7 +53,7 @@ class LockScreenService : Service() {
 
                     val aodIntent = Intent(
                         this@LockScreenService,
-                        com.NeroRonnin.mdisplayaod.MainActivity::class.java
+                        LockScreenActivity::class.java
                     ).apply {
 
                         flags =

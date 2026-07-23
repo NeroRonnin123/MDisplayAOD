@@ -7,19 +7,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.NeroRonnin.mdisplayaod.service.LockScreenService
-import com.NeroRonnin.mdisplayaod.service.MediaSessionHelper
-import com.NeroRonnin.mdisplayaod.ui.screens.LockScreen
+import com.NeroRonnin.mdisplayaod.ui.screens.SettingsScreen
 import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : ComponentActivity() {
 
@@ -33,57 +27,35 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        val insetsController =
-            WindowCompat.getInsetsController(window, window.decorView)
-
-        insetsController.hide(
-            WindowInsetsCompat.Type.systemBars()
-        )
-
-        insetsController.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-
-
-               Log.d("MDisplayAOD_ACTIVITY", "MainActivity onCreate")
-
-        if (!Settings.canDrawOverlays(this)) {
-
-            val overlayIntent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:$packageName")
-            )
-
-            startActivity(overlayIntent)
-        }
-
+        checkOverlayPermission()
         checkNotificationPermission()
-
-        setShowWhenLocked(true)
-        setTurnScreenOn(true)
-
-        MediaSessionHelper.syncCurrentSession(this)
-
-        enableEdgeToEdge()
 
         setContent {
             MDisplayAODTheme {
-                LockScreen()
+
+                SettingsScreen(
+                    onPreviewClick = {
+                        openLockScreenPreview()
+                    }
+                )
             }
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    private fun checkOverlayPermission() {
 
-        Log.d("MDisplayAOD_ACTIVITY", "MainActivity onResume")
-        MediaSessionHelper.syncCurrentSession(this)
+        if (!Settings.canDrawOverlays(this)) {
+
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
+
+            startActivity(intent)
+        }
     }
 
     private fun checkNotificationPermission() {
@@ -115,29 +87,14 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
+    private fun openLockScreenPreview() {
 
-        Log.d(
-            "MDisplayAOD_ACTIVITY",
-            "MainActivity onNewIntent - FROM_SCREEN_OFF=${
-                intent.getBooleanExtra("FROM_SCREEN_OFF", false)
-            }"
-        )
-    }
+        val intent =
+            Intent(
+                this,
+                LockScreenActivity::class.java
+            )
 
-    override fun onPause() {
-        super.onPause()
-        Log.d("MDisplayAOD_ACTIVITY", "MainActivity onPause")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d("MDisplayAOD_ACTIVITY", "MainActivity onStop")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("MDisplayAOD_ACTIVITY", "MainActivity onDestroy")
+        startActivity(intent)
     }
 }
