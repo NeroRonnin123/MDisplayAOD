@@ -11,8 +11,37 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.NeroRonnin.mdisplayaod.service.MediaSessionHelper
 import com.NeroRonnin.mdisplayaod.ui.screens.LockScreen
 import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.core.content.ContextCompat
 
 class LockScreenActivity : ComponentActivity() {
+
+    private val unlockReceiver = object : BroadcastReceiver() {
+
+        override fun onReceive(
+            context: Context?,
+            intent: Intent?
+        ) {
+
+            if (intent?.action == ACTION_CLOSE_LOCK_SCREEN) {
+
+                Log.d(
+                    "MDisplayAOD_LOCK_ACTIVITY",
+                    "Usuario desbloqueó → cerrando LockScreenActivity"
+                )
+
+                finish()
+            }
+        }
+    }
+
+    companion object {
+        const val ACTION_CLOSE_LOCK_SCREEN =
+            "com.NeroRonnin.mdisplayaod.CLOSE_LOCK_SCREEN"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +78,13 @@ class LockScreenActivity : ComponentActivity() {
         MediaSessionHelper.syncCurrentSession(this)
 
         enableEdgeToEdge()
+
+        ContextCompat.registerReceiver(
+            this,
+            unlockReceiver,
+            IntentFilter(ACTION_CLOSE_LOCK_SCREEN),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         setContent {
             MDisplayAODTheme {
@@ -99,10 +135,13 @@ class LockScreenActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(unlockReceiver)
 
         Log.d(
             "MDisplayAOD_LOCK_ACTIVITY",
             "LockScreenActivity onDestroy"
         )
+
+        super.onDestroy()
     }
 }

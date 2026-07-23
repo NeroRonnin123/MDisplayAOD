@@ -65,7 +65,6 @@ private val WarningColor = Color(0xFFFFBE45)
 
 private val PrimaryText = Color(0xFFF4F4F6)
 private val SecondaryText = Color(0xFFA6A7AF)
-
 @Composable
 fun SettingsScreen(
     isEnabled: Boolean,
@@ -78,8 +77,10 @@ fun SettingsScreen(
     onNotificationAccessClick: () -> Unit,
     onPostNotificationsClick: () -> Unit,
     onBatteryOptimizationClick: () -> Unit,
-    onPreviewClick: () -> Unit
-) {
+    onPreviewClick: () -> Unit,
+    onClockClick: () -> Unit
+)
+{
 
     Column(
         modifier = Modifier
@@ -181,7 +182,8 @@ fun SettingsScreen(
                 modifier = Modifier.weight(1f),
                 icon = Icons.Default.AccessTime,
                 title = "Reloj",
-                description = "Estilo y color"
+                description = "Estilo y color",
+                onClick = onClockClick
             )
 
             CustomizationCard(
@@ -590,10 +592,12 @@ private fun CustomizationCard(
     modifier: Modifier,
     icon: ImageVector,
     title: String,
-    description: String
+    description: String,
+    onClick: () -> Unit = {}
 ) {
 
     Card(
+        onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),
         border = BorderStroke(
@@ -603,7 +607,7 @@ private fun CustomizationCard(
         colors = CardDefaults.cardColors(
             containerColor = CardBackground
         )
-    ) {
+    ){
 
         Row(
             modifier = Modifier

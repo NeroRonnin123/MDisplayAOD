@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import com.NeroRonnin.mdisplayaod.R
 import com.NeroRonnin.mdisplayaod.LockScreenActivity
 
+
 class LockScreenService : Service() {
 
     private var aodShownForCurrentLock = false
@@ -58,7 +59,8 @@ class LockScreenService : Service() {
 
                         flags =
                             Intent.FLAG_ACTIVITY_NEW_TASK or
-                                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                                    Intent.FLAG_ACTIVITY_NO_ANIMATION
 
                         putExtra("FROM_SCREEN_OFF", true)
                     }
@@ -100,8 +102,16 @@ class LockScreenService : Service() {
                         "MDisplayAOD_LOCK",
                         "Usuario DESBLOQUEÓ"
                     )
+
                     aodShownForCurrentLock = false
-                    aodShownForCurrentLock = false
+
+                    val closeIntent = Intent(
+                        LockScreenActivity.ACTION_CLOSE_LOCK_SCREEN
+                    ).apply {
+                        setPackage(packageName)
+                    }
+
+                    sendBroadcast(closeIntent)
 
                 }
             }

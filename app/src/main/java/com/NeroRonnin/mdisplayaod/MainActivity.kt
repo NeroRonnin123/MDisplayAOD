@@ -19,6 +19,13 @@ import androidx.core.content.ContextCompat
 import com.NeroRonnin.mdisplayaod.service.LockScreenService
 import com.NeroRonnin.mdisplayaod.ui.screens.SettingsScreen
 import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
+import androidx.compose.runtime.*
+import com.NeroRonnin.mdisplayaod.ui.screens.ClockSettingsScreen
+import androidx.compose.runtime.remember
+
+
+
+
 
 class MainActivity : ComponentActivity() {
 
@@ -77,42 +84,65 @@ class MainActivity : ComponentActivity() {
         setContent {
             MDisplayAODTheme {
 
-                SettingsScreen(
-                    isEnabled = isLockScreenEnabled,
+                var currentScreen by remember {
+                    mutableStateOf("settings")
+                }
 
-                    overlayGranted = overlayGranted,
-                    notificationAccessGranted = notificationAccessGranted,
-                    postNotificationsGranted = postNotificationsGranted,
-                    batteryOptimizationDisabled = batteryOptimizationDisabled,
+                when (currentScreen) {
 
-                    onEnabledChange = { enabled ->
-                        updateLockScreenEnabled(enabled)
-                    },
+                    "settings" -> {
 
-                    onOverlayClick = {
-                        openOverlaySettings()
-                    },
+                        SettingsScreen(
+                            isEnabled = isLockScreenEnabled,
 
-                    onNotificationAccessClick = {
-                        openNotificationAccessSettings()
-                    },
+                            overlayGranted = overlayGranted,
+                            notificationAccessGranted = notificationAccessGranted,
+                            postNotificationsGranted = postNotificationsGranted,
+                            batteryOptimizationDisabled = batteryOptimizationDisabled,
 
-                    onPostNotificationsClick = {
-                        requestNotificationPermission()
-                    },
+                            onEnabledChange = { enabled ->
+                                updateLockScreenEnabled(enabled)
+                            },
 
-                    onBatteryOptimizationClick = {
-                        openBatteryOptimizationSettings()
-                    },
+                            onOverlayClick = {
+                                openOverlaySettings()
+                            },
 
-                    onPreviewClick = {
-                        openLockScreenPreview()
+                            onNotificationAccessClick = {
+                                openNotificationAccessSettings()
+                            },
+
+                            onPostNotificationsClick = {
+                                requestNotificationPermission()
+                            },
+
+                            onBatteryOptimizationClick = {
+                                openBatteryOptimizationSettings()
+                            },
+
+                            onPreviewClick = {
+                                openLockScreenPreview()
+                            },
+
+                            // NUEVO
+                            onClockClick = {
+                                currentScreen = "clock"
+                            }
+                        )
                     }
-                )
+
+                    "clock" -> {
+
+                        ClockSettingsScreen(
+                            onBack = {
+                                currentScreen = "settings"
+                            }
+                        )
+                    }
+                }
             }
         }
     }
-
 
     private fun openOverlaySettings() {
 

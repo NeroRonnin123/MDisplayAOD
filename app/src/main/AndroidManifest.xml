@@ -17,7 +17,9 @@
             android:name=".LockScreenActivity"
             android:exported="false"
             android:excludeFromRecents="true"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            android:noHistory="true"
+            android:taskAffinity=""/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
