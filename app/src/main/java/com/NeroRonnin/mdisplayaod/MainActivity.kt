@@ -14,8 +14,18 @@ import androidx.core.content.ContextCompat
 import com.NeroRonnin.mdisplayaod.service.LockScreenService
 import com.NeroRonnin.mdisplayaod.ui.screens.SettingsScreen
 import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        private const val PREFS_NAME = "mdisplayaod_settings"
+        private const val KEY_ENABLED = "lock_screen_enabled"
+    }
+
+    private var isLockScreenEnabled by mutableStateOf(true)
 
     private val notificationPermissionLauncher =
         registerForActivityResult(
@@ -30,18 +40,71 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val preferences =
+            getSharedPreferences(
+                PREFS_NAME,
+                MODE_PRIVATE
+            )
+
+        isLockScreenEnabled =
+            preferences.getBoolean(
+                KEY_ENABLED,
+                true
+            )
+
         checkOverlayPermission()
-        checkNotificationPermission()
+
+        if (isLockScreenEnabled) {
+            checkNotificationPermission()
+        }
 
         setContent {
             MDisplayAODTheme {
 
                 SettingsScreen(
+                    isEnabled = isLockScreenEnabled,
+
+                    onEnabledChange = { enabled ->
+
+                        updateLockScreenEnabled(enabled)
+                    },
+
                     onPreviewClick = {
                         openLockScreenPreview()
                     }
                 )
             }
+        }
+    }
+
+    private fun updateLockScreenEnabled(enabled: Boolean) {
+
+        isLockScreenEnabled = enabled
+
+        getSharedPreferences(
+            PREFS_NAME,
+            MODE_PRIVATE
+        )
+            .edit()
+            .putBoolean(
+                KEY_ENABLED,
+                enabled
+            )
+            .apply()
+
+        if (enabled) {
+
+            checkNotificationPermission()
+
+        } else {
+
+            val intent =
+                Intent(
+                    this,
+                    LockScreenService::class.java
+                )
+
+            stopService(intent)
         }
     }
 
