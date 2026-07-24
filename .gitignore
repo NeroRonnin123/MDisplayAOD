@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Local battery diagnostics
+mdisplay_battery.txt
