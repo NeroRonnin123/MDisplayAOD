@@ -165,13 +165,16 @@ object MediaSessionHelper {
                 MediaMetadata.METADATA_KEY_ARTIST
             )
 
-        val albumArt =
+        val newAlbumArt =
             metadata?.getBitmap(
                 MediaMetadata.METADATA_KEY_ALBUM_ART
             )
                 ?: metadata?.getBitmap(
                     MediaMetadata.METADATA_KEY_ART
                 )
+
+        val albumArt =
+            newAlbumArt ?: MusicRepository.song.value.albumArt
 
         val isPlaying =
             controller.playbackState?.state ==

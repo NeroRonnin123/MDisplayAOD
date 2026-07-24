@@ -1,5 +1,6 @@
 package com.NeroRonnin.mdisplayaod.ui.screens
 
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,6 +54,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.text.style.TextOverflow
 
+
+
 private val Background = Color(0xFF080A0F)
 private val CardBackground = Color(0xFF12151C)
 private val CardBorder = Color(0xFF272B35)
@@ -78,7 +81,8 @@ fun SettingsScreen(
     onPostNotificationsClick: () -> Unit,
     onBatteryOptimizationClick: () -> Unit,
     onPreviewClick: () -> Unit,
-    onClockClick: () -> Unit
+    onClockClick: () -> Unit,
+    onMusicClick: () -> Unit
 )
 {
 
@@ -190,7 +194,9 @@ fun SettingsScreen(
                 modifier = Modifier.weight(1f),
                 icon = Icons.Default.MusicNote,
                 title = "Música",
+                onClick = onMusicClick,
                 description = "Info y controles"
+
             )
         }
 

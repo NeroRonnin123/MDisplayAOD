@@ -22,7 +22,7 @@ import com.NeroRonnin.mdisplayaod.ui.theme.MDisplayAODTheme
 import androidx.compose.runtime.*
 import com.NeroRonnin.mdisplayaod.ui.screens.ClockSettingsScreen
 import androidx.compose.runtime.remember
-
+import com.NeroRonnin.mdisplayaod.ui.screens.MusicSettingsScreen
 
 
 
@@ -127,6 +127,10 @@ class MainActivity : ComponentActivity() {
                             // NUEVO
                             onClockClick = {
                                 currentScreen = "clock"
+                            },
+
+                            onMusicClick = {
+                                currentScreen = "music"
                             }
                         )
                     }
@@ -134,6 +138,14 @@ class MainActivity : ComponentActivity() {
                     "clock" -> {
 
                         ClockSettingsScreen(
+                            onBack = {
+                                currentScreen = "settings"
+                            }
+                        )
+                    }
+                    "music" -> {
+
+                        MusicSettingsScreen(
                             onBack = {
                                 currentScreen = "settings"
                             }

@@ -12,6 +12,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.LocalContext
+import com.NeroRonnin.mdisplayaod.data.MusicPreferences
+
+
+
+
 
 @Composable
 fun PlayerControls(
@@ -20,6 +26,17 @@ fun PlayerControls(
     onPlayPause: () -> Unit,
     onNext: () -> Unit
 ) {
+
+    val context = LocalContext.current
+
+    val showControls =
+        MusicPreferences.getShowControls(context)
+
+    if (!showControls) {
+        return
+    }
+
+
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(32.dp)

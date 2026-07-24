@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import com.NeroRonnin.mdisplayaod.util.ArtworkColorExtractor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.NeroRonnin.mdisplayaod.data.MusicPreferences
 
 @Composable
 fun LockScreen() {
@@ -46,11 +47,24 @@ fun LockScreen() {
 
     val lockScreenViewModel: LockScreenViewModel = viewModel()
     val song by lockScreenViewModel.song.collectAsState()
-
+    val hasMedia =
+        song.title != "Sin reproducción"
 
     var automaticClockColor by remember {
         mutableStateOf(Color.White)
     }
+
+    val showTitle =
+        MusicPreferences.getShowTitle(context)
+
+    val showArtist =
+        MusicPreferences.getShowArtist(context)
+
+    val showControls =
+        MusicPreferences.getShowControls(context)
+
+    val showSongInfo =
+        showTitle || showArtist
 
     LaunchedEffect(song.albumArt) {
 
@@ -137,26 +151,40 @@ fun LockScreen() {
 
             DateText()
 
-            Spacer(modifier = Modifier.height(48.dp))
+            if (hasMedia) {
 
-            SongInfo(song)
+                if (showSongInfo) {
 
+                    Spacer(
+                        modifier = Modifier.height(48.dp)
+                    )
 
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            PlayerControls(
-                isPlaying = song.isPlaying,
-                onPrevious = {
-                    lockScreenViewModel.previous()
-                },
-                onPlayPause = {
-                    lockScreenViewModel.playPause()
-                },
-                onNext = {
-                    lockScreenViewModel.next()
+                    SongInfo(song)
                 }
-            )
+
+                if (showControls) {
+
+                    Spacer(
+                        modifier = Modifier.height(
+                            if (showSongInfo) 32.dp
+                            else 48.dp
+                        )
+                    )
+
+                    PlayerControls(
+                        isPlaying = song.isPlaying,
+                        onPrevious = {
+                            lockScreenViewModel.previous()
+                        },
+                        onPlayPause = {
+                            lockScreenViewModel.playPause()
+                        },
+                        onNext = {
+                            lockScreenViewModel.next()
+                        }
+                    )
+                }
+            }
         }
     }
 }
