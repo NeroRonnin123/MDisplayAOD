@@ -56,201 +56,394 @@ fun MusicSettingsScreen(
         mutableStateOf(MusicPreferences.getTitleSize(context))
     }
 
+    var titleWeight by remember {
+        mutableStateOf(MusicPreferences.getTitleWeight(context))
+    }
+
+    var controlsSize by remember {
+        mutableStateOf(MusicPreferences.getControlsSize(context))
+    }
+
+    // CONTENEDOR GENERAL
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
             .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(
-                horizontal = 20.dp,
-                vertical = 24.dp
-            )
     ) {
 
-        // HEADER
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+        // =========================================================
+        // ZONA FIJA
+        // Header + Preview
+        // =========================================================
+
+        Column(
+            modifier = Modifier.padding(
+                start = 20.dp,
+                end = 20.dp,
+                top = 24.dp
+            )
         ) {
 
-            IconButton(
-                onClick = onBack
+            // HEADER
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
-                    tint = PrimaryText
+
+                IconButton(
+                    onClick = onBack
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Volver",
+                        tint = PrimaryText
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.width(8.dp)
                 )
+
+                Column {
+
+                    Text(
+                        text = "Música",
+                        color = PrimaryText,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Light
+                    )
+
+                    Text(
+                        text = "Personaliza la información de reproducción",
+                        color = SecondaryText,
+                        fontSize = 15.sp
+                    )
+                }
             }
 
             Spacer(
-                modifier = Modifier.width(8.dp)
+                modifier = Modifier.height(24.dp)
             )
 
-            Column {
+            SectionTitle("VISTA PREVIA")
 
-                Text(
-                    text = "Música",
-                    color = PrimaryText,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Light
-                )
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
-                Text(
-                    text = "Personaliza la información de reproducción",
-                    color = SecondaryText,
-                    fontSize = 15.sp
-                )
-            }
+            MusicPreview(
+                showTitle = showTitle,
+                showArtist = showArtist,
+                showControls = showControls,
+                titleSize = titleSize,
+                titleWeight = titleWeight,
+                controlsSize = controlsSize
+            )
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
         }
 
-        Spacer(
-            modifier = Modifier.height(36.dp)
-        )
+        // =========================================================
+        // ZONA CON SCROLL
+        // =========================================================
 
-        SectionTitle("VISTA PREVIA")
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
-
-        MusicPreview(
-            showTitle = showTitle,
-            showArtist = showArtist,
-            showControls = showControls,
-            titleSize = titleSize
-        )
-
-        Spacer(
-            modifier = Modifier.height(34.dp)
-        )
-
-        SectionTitle("INFORMACIÓN")
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
-
-        MusicSwitchCard(
-            title = "Mostrar título",
-            description = "Muestra el nombre de la canción",
-            checked = showTitle,
-            onCheckedChange = {
-
-                showTitle = it
-
-                MusicPreferences.setShowTitle(
-                    context,
-                    it
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    start = 20.dp,
+                    end = 20.dp,
+                    bottom = 40.dp
                 )
-            }
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        MusicSwitchCard(
-            title = "Mostrar artista",
-            description = "Muestra el artista debajo del título",
-            checked = showArtist,
-            onCheckedChange = {
-
-                showArtist = it
-
-                MusicPreferences.setShowArtist(
-                    context,
-                    it
-                )
-            }
-        )
-
-        Spacer(
-            modifier = Modifier.height(34.dp)
-        )
-
-        SectionTitle("TAMAÑO DEL TÍTULO")
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
-            SizeOption(
-                modifier = Modifier.weight(1f),
-                text = "Pequeño",
-                selected = titleSize == "small"
+            // =====================================================
+            // INFORMACIÓN
+            // =====================================================
+
+            SectionTitle("INFORMACIÓN")
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            MusicSwitchCard(
+                title = "Mostrar título",
+                description = "Muestra el nombre de la canción",
+                checked = showTitle,
+                onCheckedChange = {
+
+                    showTitle = it
+
+                    MusicPreferences.setShowTitle(
+                        context,
+                        it
+                    )
+                }
+            )
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            MusicSwitchCard(
+                title = "Mostrar artista",
+                description = "Muestra el artista debajo del título",
+                checked = showArtist,
+                onCheckedChange = {
+
+                    showArtist = it
+
+                    MusicPreferences.setShowArtist(
+                        context,
+                        it
+                    )
+                }
+            )
+
+            // =====================================================
+            // TAMAÑO DEL TÍTULO
+            // =====================================================
+
+            Spacer(
+                modifier = Modifier.height(34.dp)
+            )
+
+            SectionTitle("TAMAÑO DEL TÍTULO")
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                titleSize = "small"
-                MusicPreferences.setTitleSize(context, "small")
+
+                SizeOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Pequeño",
+                    selected = titleSize == "small"
+                ) {
+                    titleSize = "small"
+
+                    MusicPreferences.setTitleSize(
+                        context,
+                        "small"
+                    )
+                }
+
+                SizeOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Mediano",
+                    selected = titleSize == "medium"
+                ) {
+                    titleSize = "medium"
+
+                    MusicPreferences.setTitleSize(
+                        context,
+                        "medium"
+                    )
+                }
+
+                SizeOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Grande",
+                    selected = titleSize == "large"
+                ) {
+                    titleSize = "large"
+
+                    MusicPreferences.setTitleSize(
+                        context,
+                        "large"
+                    )
+                }
             }
 
-            SizeOption(
-                modifier = Modifier.weight(1f),
-                text = "Mediano",
-                selected = titleSize == "medium"
+            // =====================================================
+            // GROSOR DEL TÍTULO
+            // =====================================================
+
+            Spacer(
+                modifier = Modifier.height(34.dp)
+            )
+
+            SectionTitle("GROSOR DEL TÍTULO")
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                titleSize = "medium"
-                MusicPreferences.setTitleSize(context, "medium")
+
+                WeightOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Light",
+                    selected = titleWeight == "light"
+                ) {
+                    titleWeight = "light"
+
+                    MusicPreferences.setTitleWeight(
+                        context,
+                        "light"
+                    )
+                }
+
+                WeightOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Normal",
+                    selected = titleWeight == "normal"
+                ) {
+                    titleWeight = "normal"
+
+                    MusicPreferences.setTitleWeight(
+                        context,
+                        "normal"
+                    )
+                }
+
+                WeightOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Medium",
+                    selected = titleWeight == "medium"
+                ) {
+                    titleWeight = "medium"
+
+                    MusicPreferences.setTitleWeight(
+                        context,
+                        "medium"
+                    )
+                }
+
+                WeightOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Bold",
+                    selected = titleWeight == "bold"
+                ) {
+                    titleWeight = "bold"
+
+                    MusicPreferences.setTitleWeight(
+                        context,
+                        "bold"
+                    )
+                }
             }
 
-            SizeOption(
-                modifier = Modifier.weight(1f),
-                text = "Grande",
-                selected = titleSize == "large"
-            ) {
-                titleSize = "large"
-                MusicPreferences.setTitleSize(context, "large")
-            }
-        }
+            // =====================================================
+            // CONTROLES
+            // =====================================================
 
-        Spacer(
-            modifier = Modifier.height(34.dp)
-        )
+            Spacer(
+                modifier = Modifier.height(34.dp)
+            )
 
-        SectionTitle("CONTROLES")
+            SectionTitle("CONTROLES")
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
 
-        MusicSwitchCard(
-            title = "Mostrar controles",
-            description = "Anterior, reproducir y siguiente",
-            checked = showControls,
-            onCheckedChange = {
+            MusicSwitchCard(
+                title = "Mostrar controles",
+                description = "Anterior, reproducir y siguiente",
+                checked = showControls,
+                onCheckedChange = {
 
-                showControls = it
+                    showControls = it
 
-                MusicPreferences.setShowControls(
-                    context,
-                    it
+                    MusicPreferences.setShowControls(
+                        context,
+                        it
+                    )
+                }
+            )
+
+            // Tamaño de controles.
+            // Solo se muestra si los controles están habilitados.
+            if (showControls) {
+
+                Spacer(
+                    modifier = Modifier.height(20.dp)
                 )
-            }
-        )
 
-        Spacer(
-            modifier = Modifier.height(40.dp)
-        )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+
+                    SizeOption(
+                        modifier = Modifier.weight(1f),
+                        text = "Pequeño",
+                        selected = controlsSize == "small"
+                    ) {
+                        controlsSize = "small"
+
+                        MusicPreferences.setControlsSize(
+                            context,
+                            "small"
+                        )
+                    }
+
+                    SizeOption(
+                        modifier = Modifier.weight(1f),
+                        text = "Mediano",
+                        selected = controlsSize == "medium"
+                    ) {
+                        controlsSize = "medium"
+
+                        MusicPreferences.setControlsSize(
+                            context,
+                            "medium"
+                        )
+                    }
+
+                    SizeOption(
+                        modifier = Modifier.weight(1f),
+                        text = "Grande",
+                        selected = controlsSize == "large"
+                    ) {
+                        controlsSize = "large"
+
+                        MusicPreferences.setControlsSize(
+                            context,
+                            "large"
+                        )
+                    }
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(40.dp)
+            )
+        }
     }
 }
+
+
+// =============================================================
+// PREVIEW
+// =============================================================
 
 @Composable
 private fun MusicPreview(
     showTitle: Boolean,
     showArtist: Boolean,
     showControls: Boolean,
-    titleSize: String
+    titleSize: String,
+    titleWeight: String,
+    controlsSize: String
 ) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(230.dp),
+            .height(200.dp),
         shape = RoundedCornerShape(22.dp),
         border = BorderStroke(
             1.dp,
@@ -279,7 +472,12 @@ private fun MusicPreview(
                         "large" -> 24.sp
                         else -> 20.sp
                     },
-                    fontWeight = FontWeight.Normal
+                    fontWeight = when (titleWeight) {
+                        "light" -> FontWeight.Light
+                        "normal" -> FontWeight.Normal
+                        "bold" -> FontWeight.Bold
+                        else -> FontWeight.Medium
+                    }
                 )
             }
 
@@ -302,6 +500,16 @@ private fun MusicPreview(
                     modifier = Modifier.height(28.dp)
                 )
 
+                val controlIconSize =
+                    when (controlsSize) {
+
+                        "small" -> 20.dp
+
+                        "large" -> 34.dp
+
+                        else -> 26.dp
+                    }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(0.65f),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -311,20 +519,22 @@ private fun MusicPreview(
                     Icon(
                         imageVector = Icons.Default.FastRewind,
                         contentDescription = null,
-                        tint = PrimaryText
+                        tint = PrimaryText,
+                        modifier = Modifier.size(controlIconSize)
                     )
 
                     Icon(
                         imageVector = Icons.Default.Pause,
                         contentDescription = null,
                         tint = PrimaryText,
-                        modifier = Modifier.size(30.dp)
+                        modifier = Modifier.size(controlIconSize)
                     )
 
                     Icon(
                         imageVector = Icons.Default.FastForward,
                         contentDescription = null,
-                        tint = PrimaryText
+                        tint = PrimaryText,
+                        modifier = Modifier.size(controlIconSize)
                     )
                 }
             }
@@ -332,6 +542,10 @@ private fun MusicPreview(
     }
 }
 
+
+// =============================================================
+// SWITCH CARD
+// =============================================================
 
 @Composable
 private fun MusicSwitchCard(
@@ -389,6 +603,11 @@ private fun MusicSwitchCard(
     }
 }
 
+
+// =============================================================
+// SIZE OPTION
+// =============================================================
+
 @Composable
 private fun SizeOption(
     modifier: Modifier,
@@ -405,13 +624,26 @@ private fun SizeOption(
             },
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(
-            width = if (selected) 2.dp else 1.dp,
-            color = if (selected) Purple else CardBorder
+            width =
+                if (selected) {
+                    2.dp
+                } else {
+                    1.dp
+                },
+            color =
+                if (selected) {
+                    Purple
+                } else {
+                    CardBorder
+                }
         ),
         colors = CardDefaults.cardColors(
             containerColor =
-                if (selected) PurpleBackground
-                else CardBackground
+                if (selected) {
+                    PurpleBackground
+                } else {
+                    CardBackground
+                }
         )
     ) {
 
@@ -423,13 +655,99 @@ private fun SizeOption(
             Text(
                 text = text,
                 color =
-                    if (selected) Purple
-                    else PrimaryText,
+                    if (selected) {
+                        Purple
+                    } else {
+                        PrimaryText
+                    },
                 fontSize = 14.sp
             )
         }
     }
 }
+
+
+// =============================================================
+// WEIGHT OPTION
+// =============================================================
+
+@Composable
+private fun WeightOption(
+    modifier: Modifier,
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+
+    Card(
+        modifier = modifier
+            .height(58.dp)
+            .clickable {
+                onClick()
+            },
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(
+            width =
+                if (selected) {
+                    2.dp
+                } else {
+                    1.dp
+                },
+            color =
+                if (selected) {
+                    Purple
+                } else {
+                    CardBorder
+                }
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor =
+                if (selected) {
+                    PurpleBackground
+                } else {
+                    CardBackground
+                }
+        )
+    ) {
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+
+            Text(
+                text = text,
+                color =
+                    if (selected) {
+                        Purple
+                    } else {
+                        PrimaryText
+                    },
+                fontSize = 12.sp,
+                fontWeight =
+                    when (text) {
+
+                        "Light" ->
+                            FontWeight.Light
+
+                        "Normal" ->
+                            FontWeight.Normal
+
+                        "Bold" ->
+                            FontWeight.Bold
+
+                        else ->
+                            FontWeight.Medium
+                    }
+            )
+        }
+    }
+}
+
+
+// =============================================================
+// SECTION TITLE
+// =============================================================
 
 @Composable
 private fun SectionTitle(

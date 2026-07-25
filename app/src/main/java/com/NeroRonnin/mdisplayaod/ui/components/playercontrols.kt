@@ -13,6 +13,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.platform.LocalContext
+
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.layout.size
 import com.NeroRonnin.mdisplayaod.data.MusicPreferences
 
 
@@ -36,6 +40,12 @@ fun PlayerControls(
         return
     }
 
+    val controlIconSize =
+        when (MusicPreferences.getControlsSize(context)) {
+            "small" -> 20.dp
+            "large" -> 34.dp
+            else -> 26.dp
+        }
 
 
     Row(
@@ -48,7 +58,8 @@ fun PlayerControls(
             Icon(
                 imageVector = Icons.Default.FastRewind,
                 contentDescription = "Anterior",
-                tint = Color.White
+                tint = Color.White,
+                modifier = Modifier.size(controlIconSize)
             )
         }
 
@@ -62,7 +73,8 @@ fun PlayerControls(
                     Icons.Default.PlayArrow
                 },
                 contentDescription = if (isPlaying) "Pausar" else "Reproducir",
-                tint = Color.White
+                tint = Color.White,
+                modifier = Modifier.size(controlIconSize)
             )
         }
 
@@ -72,7 +84,8 @@ fun PlayerControls(
             Icon(
                 imageVector = Icons.Default.FastForward,
                 contentDescription = "Siguiente",
-                tint = Color.White
+                tint = Color.White,
+                modifier = Modifier.size(controlIconSize)
             )
         }
 

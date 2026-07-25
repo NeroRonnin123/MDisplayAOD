@@ -23,6 +23,13 @@ object MusicRepository {
     }
 
     fun playPause() {
+
+        val currentSong = _song.value
+
+        _song.value = currentSong.copy(
+            isPlaying = !currentSong.isPlaying
+        )
+
         onPlayPause?.invoke()
     }
 

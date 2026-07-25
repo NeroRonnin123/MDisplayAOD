@@ -27,13 +27,21 @@ fun SongInfo(song: Song) {
             else -> 24.sp
         }
 
+    val titleWeight =
+        when (MusicPreferences.getTitleWeight(context)) {
+            "light" -> FontWeight.Light
+            "normal" -> FontWeight.Normal
+            "bold" -> FontWeight.Bold
+            else -> FontWeight.Medium
+        }
+
     if (showTitle) {
 
         Text(
             text = song.title,
             color = Color.White,
             fontSize = titleSize,
-            fontWeight = FontWeight.Medium
+            fontWeight = titleWeight
         )
     }
 
