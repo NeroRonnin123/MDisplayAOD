@@ -8,6 +8,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.NeroRonnin.mdisplayaod.data.MusicPreferences
 import com.NeroRonnin.mdisplayaod.model.Song
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun SongInfo(song: Song) {
@@ -41,7 +47,13 @@ fun SongInfo(song: Song) {
             text = song.title,
             color = Color.White,
             fontSize = titleSize,
-            fontWeight = titleWeight
+            fontWeight = titleWeight,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
         )
     }
 
@@ -50,7 +62,13 @@ fun SongInfo(song: Song) {
         Text(
             text = song.artist,
             color = Color.Gray,
-            fontSize = 18.sp
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
         )
     }
 }
