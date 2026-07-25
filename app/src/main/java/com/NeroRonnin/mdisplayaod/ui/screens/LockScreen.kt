@@ -38,6 +38,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.NeroRonnin.mdisplayaod.data.MusicPreferences
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
+
 @Composable
 fun LockScreen() {
 
@@ -62,6 +65,9 @@ fun LockScreen() {
 
     val showControls =
         MusicPreferences.getShowControls(context)
+
+    val musicPosition =
+        MusicPreferences.getMusicPosition(context)
 
     val showSongInfo =
         showTitle || showArtist
@@ -128,7 +134,6 @@ fun LockScreen() {
         AlbumArt(song)
 
 
-
         // CAPA 2 - Blur
         Box(
             modifier = Modifier
@@ -136,7 +141,7 @@ fun LockScreen() {
                 .background(Color.Black.copy(alpha = 0.55f))
         )
 
-        // CAPA 3 - Content
+        // CAPA 3 - Reloj y fecha
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -147,29 +152,51 @@ fun LockScreen() {
                 automaticColor = automaticClockColor
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
 
             DateText()
+        }
 
-            if (hasMedia) {
+
+// CAPA 4 - Música
+        if (hasMedia && (showSongInfo || showControls)) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = 120.dp,
+                        bottom = 120.dp
+                    )
+                    .offset(
+                        y = if (musicPosition == "center") {
+                            150.dp
+                        } else {
+                            0.dp
+                        }
+                    ),
+                verticalArrangement =
+                    when (musicPosition) {
+                        "top" -> Arrangement.Top
+                        "bottom" -> Arrangement.Bottom
+                        else -> Arrangement.Center
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
                 if (showSongInfo) {
-
-                    Spacer(
-                        modifier = Modifier.height(48.dp)
-                    )
-
                     SongInfo(song)
                 }
 
                 if (showControls) {
 
-                    Spacer(
-                        modifier = Modifier.height(
-                            if (showSongInfo) 32.dp
-                            else 48.dp
+                    if (showSongInfo) {
+                        Spacer(
+                            modifier = Modifier.height(32.dp)
                         )
-                    )
+                    }
 
                     PlayerControls(
                         isPlaying = song.isPlaying,

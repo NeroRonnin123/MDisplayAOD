@@ -12,6 +12,28 @@ object MusicPreferences {
     private const val KEY_TITLE_SIZE = "title_size"
     private const val KEY_TITLE_WEIGHT = "title_weight"
     private const val KEY_CONTROLS_SIZE = "controls_size"
+    private const val KEY_MUSIC_POSITION = "music_position"
+
+
+    fun getMusicPosition(context: Context): String {
+        return prefs(context).getString(
+            KEY_MUSIC_POSITION,
+            "center"
+        ) ?: "center"
+    }
+
+    fun setMusicPosition(
+        context: Context,
+        value: String
+    ) {
+        prefs(context)
+            .edit()
+            .putString(
+                KEY_MUSIC_POSITION,
+                value
+            )
+            .apply()
+    }
 
     fun getShowTitle(context: Context): Boolean {
         return prefs(context).getBoolean(KEY_SHOW_TITLE, true)

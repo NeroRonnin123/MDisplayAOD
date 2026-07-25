@@ -64,6 +64,10 @@ fun MusicSettingsScreen(
         mutableStateOf(MusicPreferences.getControlsSize(context))
     }
 
+    var musicPosition by remember {
+        mutableStateOf(MusicPreferences.getMusicPosition(context))
+    }
+
     // CONTENEDOR GENERAL
     Column(
         modifier = Modifier
@@ -137,7 +141,8 @@ fun MusicSettingsScreen(
                 showControls = showControls,
                 titleSize = titleSize,
                 titleWeight = titleWeight,
-                controlsSize = controlsSize
+                controlsSize = controlsSize,
+                musicPosition = musicPosition
             )
 
             Spacer(
@@ -276,7 +281,6 @@ fun MusicSettingsScreen(
             Spacer(
                 modifier = Modifier.height(16.dp)
             )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -334,6 +338,52 @@ fun MusicSettingsScreen(
                     )
                 }
             }
+
+            Spacer(
+                modifier = Modifier.height(34.dp)
+            )
+
+            SectionTitle("POSICIÓN")
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+
+                SizeOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Abajo",
+                    selected = musicPosition == "bottom"
+                ) {
+                    musicPosition = "bottom"
+                    MusicPreferences.setMusicPosition(context, "bottom")
+                }
+
+                SizeOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Bajo reloj",
+                    selected = musicPosition == "center"
+                ) {
+                    musicPosition = "center"
+                    MusicPreferences.setMusicPosition(context, "center")
+                }
+
+                SizeOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Arriba",
+                    selected = musicPosition == "top"
+                ) {
+                    musicPosition = "top"
+                    MusicPreferences.setMusicPosition(context, "top")
+                }
+
+
+            }
+
 
             // =====================================================
             // CONTROLES
@@ -437,7 +487,8 @@ private fun MusicPreview(
     showControls: Boolean,
     titleSize: String,
     titleWeight: String,
-    controlsSize: String
+    controlsSize: String,
+    musicPosition: String
 ) {
 
     Card(
@@ -459,7 +510,12 @@ private fun MusicPreview(
                 .fillMaxSize()
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement =
+                when (musicPosition) {
+                    "top" -> Arrangement.Top
+                    "bottom" -> Arrangement.Bottom
+                    else -> Arrangement.Center
+                }
         ) {
 
             if (showTitle) {
