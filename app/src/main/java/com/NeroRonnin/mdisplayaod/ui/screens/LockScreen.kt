@@ -57,6 +57,14 @@ fun LockScreen() {
         mutableStateOf(Color.White)
     }
 
+    var automaticTitleColor by remember {
+        mutableStateOf(Color.White)
+    }
+
+    var automaticControlsColor by remember {
+        mutableStateOf(Color.White)
+    }
+
     val showTitle =
         MusicPreferences.getShowTitle(context)
 
@@ -69,6 +77,26 @@ fun LockScreen() {
     val musicPosition =
         MusicPreferences.getMusicPosition(context)
 
+    val controlsColorMode =
+        MusicPreferences.getControlsColorMode(context)
+
+    val titleColorMode =
+        MusicPreferences.getTitleColorMode(context)
+
+    val titleColor =
+        if (titleColorMode == "automatic") {
+            automaticTitleColor
+        } else {
+            Color.White
+        }
+
+    val controlsColor =
+        if (controlsColorMode == "automatic") {
+            automaticControlsColor
+        } else {
+            Color.White
+        }
+
     val showSongInfo =
         showTitle || showArtist
 
@@ -76,20 +104,28 @@ fun LockScreen() {
 
         val bitmap = song.albumArt
 
-        automaticClockColor =
-            if (bitmap != null) {
+        if (bitmap != null) {
 
+            val palette =
                 withContext(Dispatchers.Default) {
-
-                    Color(
-                        ArtworkColorExtractor.extractColor(bitmap)
-                    )
+                    ArtworkColorExtractor.extractPalette(bitmap)
                 }
 
-            } else {
+            automaticClockColor =
+                Color(palette.primary)
 
-                Color.White
-            }
+            automaticTitleColor =
+                Color(palette.title)
+
+            automaticControlsColor =
+                Color(palette.controls)
+
+        } else {
+
+            automaticClockColor = Color.White
+            automaticTitleColor = Color.White
+            automaticControlsColor = Color.White
+        }
     }
 
     Box(
@@ -187,7 +223,10 @@ fun LockScreen() {
             ) {
 
                 if (showSongInfo) {
-                    SongInfo(song)
+                    SongInfo(
+                        song = song,
+                        titleColor = titleColor
+                    )
                 }
 
                 if (showControls) {
@@ -200,6 +239,7 @@ fun LockScreen() {
 
                     PlayerControls(
                         isPlaying = song.isPlaying,
+                        controlColor = controlsColor,
                         onPrevious = {
                             lockScreenViewModel.previous()
                         },

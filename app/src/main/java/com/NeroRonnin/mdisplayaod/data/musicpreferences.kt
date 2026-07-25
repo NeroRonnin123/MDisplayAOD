@@ -13,6 +13,50 @@ object MusicPreferences {
     private const val KEY_TITLE_WEIGHT = "title_weight"
     private const val KEY_CONTROLS_SIZE = "controls_size"
     private const val KEY_MUSIC_POSITION = "music_position"
+    private const val KEY_CONTROLS_COLOR_MODE = "controls_color_mode"
+    private const val KEY_TITLE_COLOR_MODE = "title_color_mode"
+
+
+    fun getTitleColorMode(context: Context): String {
+        return prefs(context).getString(
+            KEY_TITLE_COLOR_MODE,
+            "white"
+        ) ?: "white"
+    }
+
+    fun setTitleColorMode(
+        context: Context,
+        value: String
+    ) {
+        prefs(context)
+            .edit()
+            .putString(
+                KEY_TITLE_COLOR_MODE,
+                value
+            )
+            .apply()
+    }
+
+
+    fun getControlsColorMode(context: Context): String {
+        return prefs(context).getString(
+            KEY_CONTROLS_COLOR_MODE,
+            "white"
+        ) ?: "white"
+    }
+
+    fun setControlsColorMode(
+        context: Context,
+        value: String
+    ) {
+        prefs(context)
+            .edit()
+            .putString(
+                KEY_CONTROLS_COLOR_MODE,
+                value
+            )
+            .apply()
+    }
 
 
     fun getMusicPosition(context: Context): String {

@@ -2,30 +2,26 @@ package com.NeroRonnin.mdisplayaod.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.IconButton
-import androidx.compose.ui.platform.LocalContext
-
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.dp
 import com.NeroRonnin.mdisplayaod.data.MusicPreferences
-
-
-
 
 
 @Composable
 fun PlayerControls(
     isPlaying: Boolean,
+    controlColor: Color = Color.White,
     onPrevious: () -> Unit,
     onPlayPause: () -> Unit,
     onNext: () -> Unit
@@ -58,7 +54,7 @@ fun PlayerControls(
             Icon(
                 imageVector = Icons.Default.FastRewind,
                 contentDescription = "Anterior",
-                tint = Color.White,
+                tint = controlColor,
                 modifier = Modifier.size(controlIconSize)
             )
         }
@@ -73,7 +69,7 @@ fun PlayerControls(
                     Icons.Default.PlayArrow
                 },
                 contentDescription = if (isPlaying) "Pausar" else "Reproducir",
-                tint = Color.White,
+                tint = controlColor,
                 modifier = Modifier.size(controlIconSize)
             )
         }
@@ -84,7 +80,7 @@ fun PlayerControls(
             Icon(
                 imageVector = Icons.Default.FastForward,
                 contentDescription = "Siguiente",
-                tint = Color.White,
+                tint = controlColor,
                 modifier = Modifier.size(controlIconSize)
             )
         }

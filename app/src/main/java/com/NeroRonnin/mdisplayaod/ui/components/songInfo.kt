@@ -16,7 +16,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SongInfo(song: Song) {
+fun SongInfo(
+    song: Song,
+    titleColor: Color = Color.White
+) {
 
     val context = LocalContext.current
 
@@ -45,7 +48,7 @@ fun SongInfo(song: Song) {
 
         Text(
             text = song.title,
-            color = Color.White,
+            color = titleColor,
             fontSize = titleSize,
             fontWeight = titleWeight,
             textAlign = TextAlign.Center,

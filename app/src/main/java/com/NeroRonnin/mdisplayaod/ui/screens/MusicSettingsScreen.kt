@@ -41,34 +41,64 @@ fun MusicSettingsScreen(
     val context = LocalContext.current
 
     var showTitle by remember {
-        mutableStateOf(MusicPreferences.getShowTitle(context))
+        mutableStateOf(
+            MusicPreferences.getShowTitle(context)
+        )
     }
 
     var showArtist by remember {
-        mutableStateOf(MusicPreferences.getShowArtist(context))
+        mutableStateOf(
+            MusicPreferences.getShowArtist(context)
+        )
     }
 
     var showControls by remember {
-        mutableStateOf(MusicPreferences.getShowControls(context))
+        mutableStateOf(
+            MusicPreferences.getShowControls(context)
+        )
     }
 
     var titleSize by remember {
-        mutableStateOf(MusicPreferences.getTitleSize(context))
+        mutableStateOf(
+            MusicPreferences.getTitleSize(context)
+        )
     }
 
     var titleWeight by remember {
-        mutableStateOf(MusicPreferences.getTitleWeight(context))
+        mutableStateOf(
+            MusicPreferences.getTitleWeight(context)
+        )
     }
 
     var controlsSize by remember {
-        mutableStateOf(MusicPreferences.getControlsSize(context))
+        mutableStateOf(
+            MusicPreferences.getControlsSize(context)
+        )
     }
 
     var musicPosition by remember {
-        mutableStateOf(MusicPreferences.getMusicPosition(context))
+        mutableStateOf(
+            MusicPreferences.getMusicPosition(context)
+        )
     }
 
+    var controlsColorMode by remember {
+        mutableStateOf(
+            MusicPreferences.getControlsColorMode(context)
+        )
+    }
+
+
+    var titleColorMode by remember {
+        mutableStateOf(
+            MusicPreferences.getTitleColorMode(context)
+        )
+    }
+
+    // =========================================================
     // CONTENEDOR GENERAL
+    // =========================================================
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,10 +106,10 @@ fun MusicSettingsScreen(
             .statusBarsPadding()
     ) {
 
-        // =========================================================
+        // =====================================================
         // ZONA FIJA
         // Header + Preview
-        // =========================================================
+        // =====================================================
 
         Column(
             modifier = Modifier.padding(
@@ -97,6 +127,7 @@ fun MusicSettingsScreen(
                 IconButton(
                     onClick = onBack
                 ) {
+
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Volver",
@@ -142,7 +173,8 @@ fun MusicSettingsScreen(
                 titleSize = titleSize,
                 titleWeight = titleWeight,
                 controlsSize = controlsSize,
-                musicPosition = musicPosition
+                musicPosition = musicPosition,
+                controlsColorMode = controlsColorMode
             )
 
             Spacer(
@@ -150,14 +182,16 @@ fun MusicSettingsScreen(
             )
         }
 
-        // =========================================================
+        // =====================================================
         // ZONA CON SCROLL
-        // =========================================================
+        // =====================================================
 
         Column(
             modifier = Modifier
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(
+                    rememberScrollState()
+                )
                 .padding(
                     start = 20.dp,
                     end = 20.dp,
@@ -165,9 +199,9 @@ fun MusicSettingsScreen(
                 )
         ) {
 
-            // =====================================================
+            // =================================================
             // INFORMACIÓN
-            // =====================================================
+            // =================================================
 
             SectionTitle("INFORMACIÓN")
 
@@ -209,9 +243,9 @@ fun MusicSettingsScreen(
                 }
             )
 
-            // =====================================================
+            // =================================================
             // TAMAÑO DEL TÍTULO
-            // =====================================================
+            // =================================================
 
             Spacer(
                 modifier = Modifier.height(34.dp)
@@ -225,7 +259,8 @@ fun MusicSettingsScreen(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement =
+                    Arrangement.spacedBy(10.dp)
             ) {
 
                 SizeOption(
@@ -233,6 +268,7 @@ fun MusicSettingsScreen(
                     text = "Pequeño",
                     selected = titleSize == "small"
                 ) {
+
                     titleSize = "small"
 
                     MusicPreferences.setTitleSize(
@@ -246,6 +282,7 @@ fun MusicSettingsScreen(
                     text = "Mediano",
                     selected = titleSize == "medium"
                 ) {
+
                     titleSize = "medium"
 
                     MusicPreferences.setTitleSize(
@@ -259,6 +296,7 @@ fun MusicSettingsScreen(
                     text = "Grande",
                     selected = titleSize == "large"
                 ) {
+
                     titleSize = "large"
 
                     MusicPreferences.setTitleSize(
@@ -268,9 +306,9 @@ fun MusicSettingsScreen(
                 }
             }
 
-            // =====================================================
+            // =================================================
             // GROSOR DEL TÍTULO
-            // =====================================================
+            // =================================================
 
             Spacer(
                 modifier = Modifier.height(34.dp)
@@ -281,9 +319,11 @@ fun MusicSettingsScreen(
             Spacer(
                 modifier = Modifier.height(16.dp)
             )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement =
+                    Arrangement.spacedBy(8.dp)
             ) {
 
                 WeightOption(
@@ -291,6 +331,7 @@ fun MusicSettingsScreen(
                     text = "Light",
                     selected = titleWeight == "light"
                 ) {
+
                     titleWeight = "light"
 
                     MusicPreferences.setTitleWeight(
@@ -304,6 +345,7 @@ fun MusicSettingsScreen(
                     text = "Normal",
                     selected = titleWeight == "normal"
                 ) {
+
                     titleWeight = "normal"
 
                     MusicPreferences.setTitleWeight(
@@ -317,6 +359,7 @@ fun MusicSettingsScreen(
                     text = "Medium",
                     selected = titleWeight == "medium"
                 ) {
+
                     titleWeight = "medium"
 
                     MusicPreferences.setTitleWeight(
@@ -330,6 +373,7 @@ fun MusicSettingsScreen(
                     text = "Bold",
                     selected = titleWeight == "bold"
                 ) {
+
                     titleWeight = "bold"
 
                     MusicPreferences.setTitleWeight(
@@ -343,7 +387,7 @@ fun MusicSettingsScreen(
                 modifier = Modifier.height(34.dp)
             )
 
-            SectionTitle("POSICIÓN")
+            SectionTitle("COLOR DEL TÍTULO")
 
             Spacer(
                 modifier = Modifier.height(16.dp)
@@ -356,11 +400,65 @@ fun MusicSettingsScreen(
 
                 SizeOption(
                     modifier = Modifier.weight(1f),
+                    text = "Blanco",
+                    selected = titleColorMode == "white"
+                ) {
+                    titleColorMode = "white"
+
+                    MusicPreferences.setTitleColorMode(
+                        context,
+                        "white"
+                    )
+                }
+
+                SizeOption(
+                    modifier = Modifier.weight(1f),
+                    text = "Automático",
+                    selected = titleColorMode == "automatic"
+                ) {
+                    titleColorMode = "automatic"
+
+                    MusicPreferences.setTitleColorMode(
+                        context,
+                        "automatic"
+                    )
+                }
+            }
+
+
+
+            // =================================================
+            // POSICIÓN
+            // =================================================
+
+            Spacer(
+                modifier = Modifier.height(34.dp)
+            )
+
+            SectionTitle("POSICIÓN")
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement =
+                    Arrangement.spacedBy(10.dp)
+            ) {
+
+                SizeOption(
+                    modifier = Modifier.weight(1f),
                     text = "Abajo",
                     selected = musicPosition == "bottom"
                 ) {
+
                     musicPosition = "bottom"
-                    MusicPreferences.setMusicPosition(context, "bottom")
+
+                    MusicPreferences.setMusicPosition(
+                        context,
+                        "bottom"
+                    )
                 }
 
                 SizeOption(
@@ -368,8 +466,13 @@ fun MusicSettingsScreen(
                     text = "Bajo reloj",
                     selected = musicPosition == "center"
                 ) {
+
                     musicPosition = "center"
-                    MusicPreferences.setMusicPosition(context, "center")
+
+                    MusicPreferences.setMusicPosition(
+                        context,
+                        "center"
+                    )
                 }
 
                 SizeOption(
@@ -377,17 +480,19 @@ fun MusicSettingsScreen(
                     text = "Arriba",
                     selected = musicPosition == "top"
                 ) {
+
                     musicPosition = "top"
-                    MusicPreferences.setMusicPosition(context, "top")
+
+                    MusicPreferences.setMusicPosition(
+                        context,
+                        "top"
+                    )
                 }
-
-
             }
 
-
-            // =====================================================
+            // =================================================
             // CONTROLES
-            // =====================================================
+            // =================================================
 
             Spacer(
                 modifier = Modifier.height(34.dp)
@@ -414,17 +519,31 @@ fun MusicSettingsScreen(
                 }
             )
 
-            // Tamaño de controles.
-            // Solo se muestra si los controles están habilitados.
             if (showControls) {
+
+                // =============================================
+                // TAMAÑO DE CONTROLES
+                // =============================================
 
                 Spacer(
                     modifier = Modifier.height(20.dp)
                 )
 
+                Text(
+                    text = "TAMAÑO",
+                    color = SecondaryText,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement =
+                        Arrangement.spacedBy(10.dp)
                 ) {
 
                     SizeOption(
@@ -432,6 +551,7 @@ fun MusicSettingsScreen(
                         text = "Pequeño",
                         selected = controlsSize == "small"
                     ) {
+
                         controlsSize = "small"
 
                         MusicPreferences.setControlsSize(
@@ -445,6 +565,7 @@ fun MusicSettingsScreen(
                         text = "Mediano",
                         selected = controlsSize == "medium"
                     ) {
+
                         controlsSize = "medium"
 
                         MusicPreferences.setControlsSize(
@@ -458,11 +579,68 @@ fun MusicSettingsScreen(
                         text = "Grande",
                         selected = controlsSize == "large"
                     ) {
+
                         controlsSize = "large"
 
                         MusicPreferences.setControlsSize(
                             context,
                             "large"
+                        )
+                    }
+                }
+
+                // =============================================
+                // COLOR DE CONTROLES
+                // =============================================
+
+                Spacer(
+                    modifier = Modifier.height(24.dp)
+                )
+
+                Text(
+                    text = "COLOR",
+                    color = SecondaryText,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement =
+                        Arrangement.spacedBy(10.dp)
+                ) {
+
+                    SizeOption(
+                        modifier = Modifier.weight(1f),
+                        text = "Blanco",
+                        selected =
+                            controlsColorMode == "white"
+                    ) {
+
+                        controlsColorMode = "white"
+
+                        MusicPreferences.setControlsColorMode(
+                            context,
+                            "white"
+                        )
+                    }
+
+                    SizeOption(
+                        modifier = Modifier.weight(1f),
+                        text = "Automático",
+                        selected =
+                            controlsColorMode == "automatic"
+                    ) {
+
+                        controlsColorMode = "automatic"
+
+                        MusicPreferences.setControlsColorMode(
+                            context,
+                            "automatic"
                         )
                     }
                 }
@@ -488,7 +666,8 @@ private fun MusicPreview(
     titleSize: String,
     titleWeight: String,
     controlsSize: String,
-    musicPosition: String
+    musicPosition: String,
+    controlsColorMode: String
 ) {
 
     Card(
@@ -509,12 +688,19 @@ private fun MusicPreview(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment =
+                Alignment.CenterHorizontally,
             verticalArrangement =
                 when (musicPosition) {
-                    "top" -> Arrangement.Top
-                    "bottom" -> Arrangement.Bottom
-                    else -> Arrangement.Center
+
+                    "top" ->
+                        Arrangement.Top
+
+                    "bottom" ->
+                        Arrangement.Bottom
+
+                    else ->
+                        Arrangement.Center
                 }
         ) {
 
@@ -523,17 +709,33 @@ private fun MusicPreview(
                 Text(
                     text = "The Hype - Berlin",
                     color = PrimaryText,
-                    fontSize = when (titleSize) {
-                        "small" -> 16.sp
-                        "large" -> 24.sp
-                        else -> 20.sp
-                    },
-                    fontWeight = when (titleWeight) {
-                        "light" -> FontWeight.Light
-                        "normal" -> FontWeight.Normal
-                        "bold" -> FontWeight.Bold
-                        else -> FontWeight.Medium
-                    }
+                    fontSize =
+                        when (titleSize) {
+
+                            "small" ->
+                                16.sp
+
+                            "large" ->
+                                24.sp
+
+                            else ->
+                                20.sp
+                        },
+                    fontWeight =
+                        when (titleWeight) {
+
+                            "light" ->
+                                FontWeight.Light
+
+                            "normal" ->
+                                FontWeight.Normal
+
+                            "bold" ->
+                                FontWeight.Bold
+
+                            else ->
+                                FontWeight.Medium
+                        }
                 )
             }
 
@@ -559,38 +761,61 @@ private fun MusicPreview(
                 val controlIconSize =
                     when (controlsSize) {
 
-                        "small" -> 20.dp
+                        "small" ->
+                            20.dp
 
-                        "large" -> 34.dp
+                        "large" ->
+                            34.dp
 
-                        else -> 26.dp
+                        else ->
+                            26.dp
+                    }
+
+                // La preview usa Purple para representar
+                // el modo automático.
+                val controlColor =
+                    if (
+                        controlsColorMode == "automatic"
+                    ) {
+                        Purple
+                    } else {
+                        PrimaryText
                     }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(0.65f),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier =
+                        Modifier.fillMaxWidth(0.65f),
+                    horizontalArrangement =
+                        Arrangement.SpaceBetween,
+                    verticalAlignment =
+                        Alignment.CenterVertically
                 ) {
 
                     Icon(
-                        imageVector = Icons.Default.FastRewind,
+                        imageVector =
+                            Icons.Default.FastRewind,
                         contentDescription = null,
-                        tint = PrimaryText,
-                        modifier = Modifier.size(controlIconSize)
+                        tint = controlColor,
+                        modifier =
+                            Modifier.size(controlIconSize)
                     )
 
                     Icon(
-                        imageVector = Icons.Default.Pause,
+                        imageVector =
+                            Icons.Default.Pause,
                         contentDescription = null,
-                        tint = PrimaryText,
-                        modifier = Modifier.size(controlIconSize)
+                        tint = controlColor,
+                        modifier =
+                            Modifier.size(controlIconSize)
                     )
 
                     Icon(
-                        imageVector = Icons.Default.FastForward,
+                        imageVector =
+                            Icons.Default.FastForward,
                         contentDescription = null,
-                        tint = PrimaryText,
-                        modifier = Modifier.size(controlIconSize)
+                        tint = controlColor,
+                        modifier =
+                            Modifier.size(controlIconSize)
                     )
                 }
             }
@@ -627,7 +852,8 @@ private fun MusicSwitchCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(18.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment =
+                Alignment.CenterVertically
         ) {
 
             Column(
