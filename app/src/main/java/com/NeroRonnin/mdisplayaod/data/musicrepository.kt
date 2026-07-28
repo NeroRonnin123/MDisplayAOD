@@ -18,6 +18,16 @@ object MusicRepository {
     }
 
 
+    fun updateAlbumArt(albumArt: android.graphics.Bitmap) {
+
+        val currentSong = _song.value
+
+        _song.value = currentSong.copy(
+            albumArt = albumArt
+        )
+    }
+
+
     fun setPlayPauseAction(action: () -> Unit) {
         onPlayPause = action
     }
