@@ -15,3 +15,5 @@
 local.properties
 # Local battery diagnostics
 mdisplay_battery.txt
+# Generated release builds
+app/release/

@@ -13,6 +13,21 @@ object ArtworkCache {
     private const val CACHE_DIRECTORY = "artwork_cache"
     private const val PREFS_NAME = "artwork_cache_metadata"
 
+    /*
+     * Límites del caché.
+     *
+     * Se conservarán como máximo:
+     * - 200 portadas
+     * - 100 MB
+     *
+     * Si se supera cualquiera de los dos límites,
+     * se eliminan primero las portadas menos
+     * recientemente utilizadas.
+     */
+    private const val MAX_CACHE_FILES = 200
+    private const val MAX_CACHE_SIZE_BYTES =
+        100L * 1024L * 1024L
+
     enum class Source {
         MEDIA_SESSION,
         NOTIFICATION
@@ -53,6 +68,14 @@ object ArtworkCache {
             TAG,
             "ArtworkCache inicializado -> ${directory.absolutePath}"
         )
+
+        /*
+         * También validamos los límites al iniciar.
+         *
+         * Esto protege el caché incluso si una versión
+         * anterior de la app dejó más archivos.
+         */
+        enforceCacheLimits()
     }
 
 
@@ -100,6 +123,22 @@ object ArtworkCache {
                     "CACHE INVALIDO -> $title - $artist"
                 )
 
+                /*
+                 * Si el archivo está corrupto,
+                 * lo eliminamos para no volver
+                 * a intentar leerlo.
+                 */
+                file.delete()
+
+                context
+                    .getSharedPreferences(
+                        PREFS_NAME,
+                        Context.MODE_PRIVATE
+                    )
+                    .edit()
+                    .remove("${key}_source")
+                    .apply()
+
                 return null
             }
 
@@ -117,14 +156,27 @@ object ArtworkCache {
 
             val source =
                 try {
+
                     Source.valueOf(
                         sourceName
                             ?: Source.NOTIFICATION.name
                     )
+
                 } catch (_: Exception) {
+
                     Source.NOTIFICATION
                 }
 
+            /*
+             * LRU:
+             *
+             * Cada vez que utilizamos una portada,
+             * renovamos lastModified.
+             *
+             * De esta manera las canciones que
+             * escuchamos frecuentemente permanecen
+             * en caché.
+             */
             file.setLastModified(
                 System.currentTimeMillis()
             )
@@ -217,6 +269,14 @@ object ArtworkCache {
                 )
             }
 
+            /*
+             * Al guardar/reemplazar también cuenta
+             * como uso reciente.
+             */
+            file.setLastModified(
+                System.currentTimeMillis()
+            )
+
             context
                 .getSharedPreferences(
                     PREFS_NAME,
@@ -235,6 +295,12 @@ object ArtworkCache {
                         "${bitmap.width}x${bitmap.height} | $source"
             )
 
+            /*
+             * Después de escribir conocemos el tamaño
+             * real del archivo WebP.
+             */
+            enforceCacheLimits()
+
         } catch (e: Exception) {
 
             Log.e(
@@ -243,6 +309,128 @@ object ArtworkCache {
                 e
             )
         }
+    }
+
+
+    private fun enforceCacheLimits() {
+
+        val directory =
+            cacheDirectory ?: return
+
+        val context =
+            applicationContext ?: return
+
+        /*
+         * Solamente administramos nuestros WebP.
+         */
+        val files =
+            directory
+                .listFiles { file ->
+                    file.isFile &&
+                            file.extension.equals(
+                                "webp",
+                                ignoreCase = true
+                            )
+                }
+                ?.toMutableList()
+                ?: return
+
+        var totalFiles =
+            files.size
+
+        var totalBytes =
+            files.sumOf { file ->
+                file.length()
+            }
+
+        /*
+         * Estamos dentro de ambos límites.
+         */
+        if (
+            totalFiles <= MAX_CACHE_FILES &&
+            totalBytes <= MAX_CACHE_SIZE_BYTES
+        ) {
+            return
+        }
+
+        Log.d(
+            TAG,
+            "CACHE LIMPIEZA INICIADA -> " +
+                    "$totalFiles archivos | " +
+                    "${bytesToMb(totalBytes)} MB"
+        )
+
+        /*
+         * El archivo con lastModified más antiguo
+         * será eliminado primero.
+         */
+        val oldestFirst =
+            files.sortedBy { file ->
+                file.lastModified()
+            }
+
+        val preferences =
+            context.getSharedPreferences(
+                PREFS_NAME,
+                Context.MODE_PRIVATE
+            )
+
+        val editor =
+            preferences.edit()
+
+        for (file in oldestFirst) {
+
+            /*
+             * En cuanto volvemos a estar dentro
+             * de AMBOS límites terminamos.
+             */
+            if (
+                totalFiles <= MAX_CACHE_FILES &&
+                totalBytes <= MAX_CACHE_SIZE_BYTES
+            ) {
+                break
+            }
+
+            val fileSize =
+                file.length()
+
+            /*
+             * El nombre del archivo es directamente
+             * nuestro SHA-256.
+             */
+            val key =
+                file.nameWithoutExtension
+
+            if (file.delete()) {
+
+                totalFiles--
+                totalBytes -= fileSize
+
+                /*
+                 * Eliminamos también la metadata
+                 * asociada al archivo.
+                 */
+                editor.remove(
+                    "${key}_source"
+                )
+
+                Log.d(
+                    TAG,
+                    "CACHE ELIMINADO LRU -> " +
+                            "${file.name} | " +
+                            "${fileSize / 1024L} KB"
+                )
+            }
+        }
+
+        editor.apply()
+
+        Log.d(
+            TAG,
+            "CACHE LIMPIEZA FINALIZADA -> " +
+                    "$totalFiles archivos | " +
+                    "${bytesToMb(totalBytes)} MB"
+        )
     }
 
 
@@ -315,5 +503,17 @@ object ArtworkCache {
         return digest.joinToString("") {
             "%02x".format(it)
         }
+    }
+
+
+    private fun bytesToMb(
+        bytes: Long
+    ): String {
+
+        return String.format(
+            "%.2f",
+            bytes.toDouble() /
+                    (1024.0 * 1024.0)
+        )
     }
 }

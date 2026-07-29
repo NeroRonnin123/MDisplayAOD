@@ -9,7 +9,9 @@ object MusicRepository {
 
     enum class ArtworkSource {
         NONE,
+        CACHE,
         MEDIA_SESSION,
+        REMOTE,
         NOTIFICATION
     }
 
@@ -66,6 +68,19 @@ object MusicRepository {
                         title = song.title,
                         artist = song.artist
                     )?.bitmap
+
+                if (cachedArtwork != null) {
+
+                    artworkSource = ArtworkSource.CACHE
+                    artworkTitle = song.title
+                    artworkArtist = song.artist
+
+                    android.util.Log.d(
+                        "MDisplayAOD_ARTWORK",
+                        "CACHE ACEPTADA -> ${song.title} | " +
+                                "${cachedArtwork.width}x${cachedArtwork.height}"
+                    )
+                }
             }
         }
 
@@ -127,17 +142,43 @@ object MusicRepository {
          * 3. null.
          */
         val currentArtwork =
-            if (
-                artworkSource == ArtworkSource.NOTIFICATION &&
-                artworkTitle == song.title &&
-                artworkArtist == song.artist
-            ) {
+            when {
 
-                currentSong.albumArt
+                /*
+                 * Acabamos de cambiar de canción y encontramos
+                 * su portada en caché.
+                 *
+                 * Debemos usar ESE Bitmap, no el de currentSong,
+                 * porque currentSong todavía pertenece a la
+                 * canción anterior.
+                 */
+                cachedArtwork != null -> {
+                    cachedArtwork
+                }
 
-            } else {
+                /*
+                 * Seguimos en la misma canción y ya tenemos
+                 * una portada válida publicada.
+                 *
+                 * Un callback de MediaSession sin Bitmap
+                 * no debe borrarla.
+                 */
+                (
+                        artworkSource == ArtworkSource.NOTIFICATION ||
+                                artworkSource == ArtworkSource.REMOTE ||
+                                artworkSource == ArtworkSource.CACHE
+                        ) &&
+                        artworkTitle == song.title &&
+                        artworkArtist == song.artist -> {
+                    currentSong.albumArt
+                }
 
-                cachedArtwork
+                /*
+                 * No tenemos ninguna portada.
+                 */
+                else -> {
+                    null
+                }
             }
 
         val updatedSong =
@@ -160,6 +201,79 @@ object MusicRepository {
         _song.value = updatedSong
     }
 
+    fun updateAlbumArtFromRemote(
+        albumArt: Bitmap,
+        title: String,
+        artist: String
+    ) {
+
+        val currentSong = _song.value
+
+        /*
+         * La descarga pudo terminar cuando ya estamos
+         * reproduciendo otra canción.
+         */
+        if (
+            currentSong.title != title ||
+            currentSong.artist != artist
+        ) {
+
+            android.util.Log.d(
+                "MDisplayAOD_ARTWORK",
+                "REMOTE RECHAZADA -> canción cambió | " +
+                        "repo=${currentSong.title} - ${currentSong.artist} | " +
+                        "remote=$title - $artist"
+            )
+
+            return
+        }
+
+        /*
+         * MediaSession sigue siendo nuestra fuente
+         * de mayor prioridad.
+         */
+        if (
+            artworkSource == ArtworkSource.MEDIA_SESSION &&
+            artworkTitle == title &&
+            artworkArtist == artist &&
+            currentSong.albumArt != null
+        ) {
+
+            android.util.Log.d(
+                "MDisplayAOD_ARTWORK",
+                "REMOTE RECHAZADA -> MediaSession ya tiene prioridad | $title"
+            )
+
+            return
+        }
+
+        /*
+         * REMOTE no bloquea Notification.
+         *
+         * Simplemente publicamos el Bitmap de alta resolución.
+         */
+        artworkSource = ArtworkSource.REMOTE
+        artworkTitle = title
+        artworkArtist = artist
+
+        ArtworkCache.put(
+            title = title,
+            artist = artist,
+            bitmap = albumArt,
+            source = ArtworkCache.Source.MEDIA_SESSION
+        )
+
+        _song.value =
+            currentSong.copy(
+                albumArt = albumArt
+            )
+
+        android.util.Log.d(
+            "MDisplayAOD_ARTWORK",
+            "REMOTE ACEPTADA -> $title | " +
+                    "${albumArt.width}x${albumArt.height}"
+        )
+    }
 
     fun updateAlbumArtFromNotification(
         albumArt: Bitmap,
@@ -167,21 +281,30 @@ object MusicRepository {
         artist: String?
     ) {
 
+        val currentSong = _song.value
+
+        /*
+         * La notificación debe pertenecer exactamente
+         * a la canción actual.
+         */
         if (
-            _song.value.title != title ||
-            _song.value.artist != artist
+            currentSong.title != title ||
+            currentSong.artist != artist
         ) {
 
             android.util.Log.d(
                 "MDisplayAOD_ARTWORK",
                 "NOTIFICATION RECHAZADA -> canción no coincide | " +
-                        "repo=${_song.value.title} - ${_song.value.artist} | " +
+                        "repo=${currentSong.title} - ${currentSong.artist} | " +
                         "notif=$title - $artist"
             )
 
             return
         }
 
+        /*
+         * MediaSession sí tiene prioridad absoluta.
+         */
         if (
             artworkSource == ArtworkSource.MEDIA_SESSION &&
             artworkTitle == title &&
@@ -190,18 +313,106 @@ object MusicRepository {
 
             android.util.Log.d(
                 "MDisplayAOD_ARTWORK",
-                "NOTIFICATION RECHAZADA -> MediaSession ya tiene prioridad | $title"
+                "NOTIFICATION RECHAZADA -> MediaSession tiene prioridad | $title"
             )
 
             return
         }
 
+        /*
+         * Si REMOTE ya nos entregó, por ejemplo, 640x640,
+         * no permitimos que Notification la degrade
+         * posteriormente a 72x72 o 144x144.
+         *
+         * IMPORTANTE:
+         * no rechazamos Notification simplemente porque
+         * exista REMOTE; comparamos la calidad.
+         */
+        val currentArtwork =
+            currentSong.albumArt
+
+        if (
+            (
+                    artworkSource == ArtworkSource.REMOTE ||
+                            artworkSource == ArtworkSource.CACHE
+                    ) &&
+            artworkTitle == title &&
+            artworkArtist == artist &&
+            currentArtwork != null
+        ) {
+
+            val currentPixels =
+                currentArtwork.width.toLong() *
+                        currentArtwork.height.toLong()
+
+            val notificationPixels =
+                albumArt.width.toLong() *
+                        albumArt.height.toLong()
+
+            if (notificationPixels <= currentPixels) {
+
+                android.util.Log.d(
+                    "MDisplayAOD_ARTWORK",
+                    "NOTIFICATION RECHAZADA -> menor calidad | " +
+                            "$title | " +
+                            "${albumArt.width}x${albumArt.height} " +
+                            "<= ${currentArtwork.width}x${currentArtwork.height}"
+                )
+
+                return
+            }
+        }
+
+        /*
+         * También evitamos:
+         *
+         * Notification 144x144
+         *          ↓
+         * Notification 72x72
+         *
+         * que vimos realmente en Spotify.
+         */
+        if (
+            artworkSource == ArtworkSource.NOTIFICATION &&
+            artworkTitle == title &&
+            artworkArtist == artist &&
+            currentArtwork != null
+        ) {
+
+            val currentPixels =
+                currentArtwork.width.toLong() *
+                        currentArtwork.height.toLong()
+
+            val notificationPixels =
+                albumArt.width.toLong() *
+                        albumArt.height.toLong()
+
+            if (notificationPixels <= currentPixels) {
+
+                android.util.Log.d(
+                    "MDisplayAOD_ARTWORK",
+                    "NOTIFICATION RECHAZADA -> no mejora calidad | " +
+                            "$title | " +
+                            "${albumArt.width}x${albumArt.height} " +
+                            "<= ${currentArtwork.width}x${currentArtwork.height}"
+                )
+
+                return
+            }
+        }
+
+        /*
+         * Notification ganó la carrera o realmente
+         * nos está entregando una portada mejor.
+         */
         artworkSource = ArtworkSource.NOTIFICATION
         artworkTitle = title
         artworkArtist = artist
 
-
-        if (title != null && artist != null) {
+        if (
+            title != null &&
+            artist != null
+        ) {
 
             ArtworkCache.put(
                 title = title,
@@ -212,13 +423,14 @@ object MusicRepository {
         }
 
         _song.value =
-            _song.value.copy(
+            currentSong.copy(
                 albumArt = albumArt
             )
 
         android.util.Log.d(
             "MDisplayAOD_ARTWORK",
-            "NOTIFICATION ACEPTADA -> $title | ${albumArt.width}x${albumArt.height}"
+            "NOTIFICATION ACEPTADA -> $title | " +
+                    "${albumArt.width}x${albumArt.height}"
         )
     }
 
@@ -231,6 +443,25 @@ object MusicRepository {
                 artworkTitle == title &&
                 artworkArtist == artist &&
                 _song.value.albumArt != null
+    }
+
+    fun hasArtworkForSong(
+        title: String?,
+        artist: String?
+    ): Boolean {
+
+        if (
+            title.isNullOrBlank() ||
+            artist == null
+        ) {
+            return false
+        }
+
+        val currentSong = _song.value
+
+        return currentSong.title == title &&
+                currentSong.artist == artist &&
+                currentSong.albumArt != null
     }
 
     fun updateSong(song: Song) {

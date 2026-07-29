@@ -131,6 +131,7 @@ fun LockScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.Black)
             .pointerInput(Unit) {
 
                 var totalDrag = 0f

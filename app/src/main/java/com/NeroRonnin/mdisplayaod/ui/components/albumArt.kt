@@ -26,15 +26,18 @@ import kotlinx.coroutines.delay
 fun AlbumArt(song: Song) {
 
     /*
-     * Portada que realmente estamos mostrando.
+     * Bitmap que realmente está dibujado en pantalla.
+     *
+     * No dependemos directamente de song.albumArt para
+     * renderizar porque queremos controlar nosotros
+     * cuándo ocurre el cambio visual.
      */
     var displayedArtwork by remember {
         mutableStateOf<Bitmap?>(song.albumArt)
     }
 
     /*
-     * Canción a la que pertenece la portada
-     * que actualmente estamos mostrando.
+     * Canción a la que pertenece displayedArtwork.
      */
     var displayedSongKey by remember {
         mutableStateOf(
@@ -47,99 +50,115 @@ fun AlbumArt(song: Song) {
     }
 
     /*
-     * Controla la capa negra de transición.
+     * Capa negra utilizada únicamente durante
+     * el cambio REAL de canción.
      */
     var blackScreen by remember {
         mutableStateOf(false)
     }
 
     val blackAlpha by animateFloatAsState(
-        targetValue = if (blackScreen) 1f else 0f,
+        targetValue =
+            if (blackScreen) 1f else 0f,
         animationSpec = tween(
             durationMillis = 180
         ),
         label = "ArtworkBlackFade"
     )
 
-    /*
-     * La transición sigue reaccionando cuando llega
-     * un artwork, pero verificamos también a qué
-     * canción pertenece.
-     */
     LaunchedEffect(
         song.albumArt,
         song.title,
         song.artist
     ) {
 
-        val newArtwork = song.albumArt
+        val newArtwork =
+            song.albumArt
 
         val newSongKey =
             "${song.title}|${song.artist}"
 
         /*
-         * Todavía no llegó portada.
+         * Todavía no tenemos portada para la canción nueva.
          *
-         * Conservamos la anterior.
+         * NO borramos la portada anterior.
+         *
+         * Esto evita mostrar negro mientras esperamos:
+         *
+         * CACHE
+         * MediaSession
+         * Notification
+         * REMOTE
          */
         if (newArtwork == null) {
             return@LaunchedEffect
         }
 
         /*
-         * Primera portada.
+         * Primera portada desde que se creó el composable.
          *
-         * No hacemos transición porque no existe
-         * una portada anterior.
+         * No necesitamos transición porque no existe
+         * una portada anterior que ocultar.
          */
         if (displayedArtwork == null) {
 
-            displayedArtwork = newArtwork
-            displayedSongKey = newSongKey
+            displayedArtwork =
+                newArtwork
+
+            displayedSongKey =
+                newSongKey
 
             return@LaunchedEffect
         }
 
         /*
-         * MUY IMPORTANTE:
+         * MISMA CANCIÓN.
          *
-         * Spotify puede mandar varias instancias Bitmap
-         * para exactamente la misma canción.
+         * Ejemplo:
          *
-         * Si seguimos en la misma canción,
-         * NO volvemos a hacer fade.
+         * Notification -> 72x72
+         * REMOTE       -> 640x640
+         *
+         * Actualizamos el Bitmap inmediatamente,
+         * pero NO hacemos otro fade.
          */
-        if (displayedSongKey == newSongKey) {
+        if (
+            displayedSongKey ==
+            newSongKey
+        ) {
 
-            /*
-             * Podemos quedarnos con el Bitmap más reciente
-             * sin disparar ninguna transición.
-             */
-            displayedArtwork = newArtwork
+            displayedArtwork =
+                newArtwork
 
             return@LaunchedEffect
         }
 
         /*
-         * Llegamos aquí únicamente cuando:
+         * CAMBIO REAL DE CANCIÓN.
          *
-         * canción anterior != canción nueva
+         * En este punto:
          *
-         * Por lo tanto sí queremos transición.
+         * displayedArtwork = portada anterior
+         * newArtwork       = portada nueva
          */
 
-        // Portada anterior -> negro
+        // Portada anterior -> negro.
         blackScreen = true
 
-        // Esperamos a que termine el fade-out.
+        /*
+         * Dejamos terminar el fade-out.
+         */
         delay(180)
 
         /*
-         * Cambiamos la portada mientras
-         * la pantalla está negra.
+         * Sustituimos el Bitmap mientras
+         * la capa negra está encima.
          */
-        displayedArtwork = newArtwork
-        displayedSongKey = newSongKey
+        displayedArtwork =
+            newArtwork
+
+        displayedSongKey =
+            newSongKey
 
         /*
          * Negro -> portada nueva.
@@ -148,7 +167,9 @@ fun AlbumArt(song: Song) {
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
     ) {
 
         displayedArtwork?.let { artwork ->
@@ -164,7 +185,8 @@ fun AlbumArt(song: Song) {
         }
 
         /*
-         * Capa negra de transición.
+         * Capa utilizada únicamente
+         * durante la transición.
          */
         Box(
             modifier = Modifier
