@@ -173,8 +173,7 @@ object MediaSessionHelper {
                     MediaMetadata.METADATA_KEY_ART
                 )
 
-        val albumArt =
-            newAlbumArt ?: MusicRepository.song.value.albumArt
+        val albumArt = newAlbumArt
 
         val isPlaying =
             controller.playbackState?.state ==
@@ -184,13 +183,14 @@ object MediaSessionHelper {
         Log.d(TAG, "Artista: $artist")
         Log.d(TAG, "Portada: ${albumArt != null}")
 
-        MusicRepository.updateSong(
-            Song(
+        MusicRepository.updateSongFromMediaSession(
+            song = Song(
                 title = title ?: "Sin reproducción",
                 artist = artist ?: "",
                 albumArt = albumArt,
                 isPlaying = isPlaying
-            )
+            ),
+            mediaSessionHasArtwork = newAlbumArt != null
         )
 
         MusicRepository.setPlayPauseAction {
