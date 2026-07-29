@@ -44,6 +44,9 @@ object ArtworkColorExtractor {
 
         val hsv = FloatArray(3)
 
+        var analyzedPixels = 0
+        var chromaticPixels = 0
+
         for (x in 0 until scaledBitmap.width) {
 
             for (y in 0 until scaledBitmap.height) {
@@ -75,6 +78,18 @@ object ArtworkColorExtractor {
 
                 val brightness =
                     hsv[2]
+
+                analyzedPixels++
+
+                if (
+                    saturation < 0.20f ||
+                    brightness < 0.18f ||
+                    brightness > 0.95f
+                ) {
+                    continue
+                }
+
+                chromaticPixels++
 
                 /*
                  * Ignoramos:
@@ -137,6 +152,25 @@ object ArtworkColorExtractor {
         // =====================================================
         // HUE DOMINANTE
         // =====================================================
+
+
+        /*
+ * Si prácticamente toda la portada es monocromática,
+ * no dejamos que unos pocos píxeles con tinte
+ * determinen el color de toda la interfaz.
+ */
+        val chromaticRatio =
+            if (analyzedPixels > 0) {
+                chromaticPixels.toFloat() /
+                        analyzedPixels.toFloat()
+            } else {
+                0f
+            }
+
+        if (chromaticRatio < 0.08f) {
+            return Color.WHITE
+        }
+
 
         val bestHue =
             hueScores.indices.maxByOrNull {
@@ -213,6 +247,16 @@ object ArtworkColorExtractor {
 
         val baseColor =
             extractColor(bitmap)
+
+
+        if (baseColor == Color.WHITE) {
+
+            return ArtworkPalette(
+                primary = Color.WHITE,
+                title = Color.WHITE,
+                controls = Color.WHITE
+            )
+        }
 
         val hsv =
             FloatArray(3)
