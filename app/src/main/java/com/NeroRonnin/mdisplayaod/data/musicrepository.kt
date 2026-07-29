@@ -39,26 +39,44 @@ object MusicRepository {
             currentSong.title != song.title ||
                     currentSong.artist != song.artist
 
+        /*
+         * CAMBIO REAL DE CANCIÓN.
+         *
+         * Limpiamos la prioridad de la canción anterior
+         * y buscamos inmediatamente una portada cacheada.
+         */
+        var cachedArtwork: Bitmap? = null
+
         if (songChanged) {
 
             artworkSource = ArtworkSource.NONE
             artworkTitle = null
             artworkArtist = null
+
+            /*
+             * No buscamos caché para el estado vacío.
+             */
+            if (
+                song.title != "Sin reproducción" &&
+                song.title.isNotBlank()
+            ) {
+
+                cachedArtwork =
+                    ArtworkCache.get(
+                        title = song.title,
+                        artist = song.artist
+                    )?.bitmap
+            }
         }
 
         /*
          * MediaSession SÍ trae artwork.
+         *
+         * Sigue teniendo prioridad absoluta sobre
+         * cualquier portada proveniente del caché.
          */
         if (mediaSessionHasArtwork && song.albumArt != null) {
 
-            /*
-             * Si MediaSession ya tiene prioridad para esta misma canción,
-             * no necesitamos volver a aceptar/publicar el artwork.
-             *
-             * IMPORTANTE:
-             * seguimos actualizando isPlaying por si este callback
-             * corresponde a play/pause.
-             */
             if (
                 artworkSource == ArtworkSource.MEDIA_SESSION &&
                 artworkTitle == song.title &&
@@ -66,10 +84,6 @@ object MusicRepository {
                 currentSong.albumArt != null
             ) {
 
-                /*
-                 * Solo publicamos un nuevo estado si realmente
-                 * cambió playback.
-                 */
                 if (currentSong.isPlaying != song.isPlaying) {
 
                     _song.value = currentSong.copy(
@@ -80,10 +94,6 @@ object MusicRepository {
                 return
             }
 
-            /*
-             * Primera portada válida de MediaSession
-             * para esta canción.
-             */
             android.util.Log.d(
                 "MDisplayAOD_ARTWORK",
                 "MEDIA_SESSION ACEPTADA -> ${song.title} | " +
@@ -94,16 +104,27 @@ object MusicRepository {
             artworkTitle = song.title
             artworkArtist = song.artist
 
+            ArtworkCache.put(
+                title = song.title,
+                artist = song.artist,
+                bitmap = song.albumArt,
+                source = ArtworkCache.Source.MEDIA_SESSION
+            )
+
+
             _song.value = song
 
             return
         }
 
         /*
-         * MediaSession NO entregó portada.
+         * MediaSession todavía NO tiene artwork.
          *
-         * Si tenemos una portada proveniente de Notification
-         * para ESTA canción, la conservamos.
+         * Orden:
+         *
+         * 1. Notification de ESTA canción, si ya existe.
+         * 2. Caché, si acabamos de cambiar de canción.
+         * 3. null.
          */
         val currentArtwork =
             if (
@@ -111,9 +132,12 @@ object MusicRepository {
                 artworkTitle == song.title &&
                 artworkArtist == song.artist
             ) {
+
                 currentSong.albumArt
+
             } else {
-                null
+
+                cachedArtwork
             }
 
         val updatedSong =
@@ -122,8 +146,7 @@ object MusicRepository {
             )
 
         /*
-         * Evitamos publicar exactamente el mismo estado
-         * una y otra vez.
+         * Evitamos publicar exactamente el mismo estado.
          */
         if (
             currentSong.title == updatedSong.title &&
@@ -176,6 +199,17 @@ object MusicRepository {
         artworkSource = ArtworkSource.NOTIFICATION
         artworkTitle = title
         artworkArtist = artist
+
+
+        if (title != null && artist != null) {
+
+            ArtworkCache.put(
+                title = title,
+                artist = artist,
+                bitmap = albumArt,
+                source = ArtworkCache.Source.NOTIFICATION
+            )
+        }
 
         _song.value =
             _song.value.copy(

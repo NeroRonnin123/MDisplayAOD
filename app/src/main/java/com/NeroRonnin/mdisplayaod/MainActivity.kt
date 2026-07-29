@@ -23,7 +23,7 @@ import androidx.compose.runtime.*
 import com.NeroRonnin.mdisplayaod.ui.screens.ClockSettingsScreen
 import androidx.compose.runtime.remember
 import com.NeroRonnin.mdisplayaod.ui.screens.MusicSettingsScreen
-
+import com.NeroRonnin.mdisplayaod.data.ArtworkCache
 
 
 
@@ -60,6 +60,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        ArtworkCache.initialize(applicationContext)
 
         val preferences =
             getSharedPreferences(
